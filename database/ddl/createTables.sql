@@ -1,3 +1,6 @@
+-- DATABASE
+CREATE DATABASE HOSPITAL;
+
 -- DEPARTMENT TABLE
 CREATE TABLE department (
     department_id SERIAL PRIMARY KEY,
@@ -5,17 +8,21 @@ CREATE TABLE department (
     location VARCHAR(255)                  
 );
 
--- DOCTOR TABLE
-CREATE TABLE doctor (
-    doctor_id SERIAL PRIMARY KEY,
+-- STAFF TABLE
+CREATE TABLE staff (
+    staff_id SERIAL PRIMARY KEY,
     last_name VARCHAR(50) NOT NULL,        
-    first_name VARCHAR(50) NOT NULL,       
-    contact VARCHAR(50),                   
-    specialization VARCHAR(50),            
-    email VARCHAR(50),                     
-    department_id INT,                     
-    CONSTRAINT fk_doctor_department FOREIGN KEY (department_id)
-        REFERENCES department (department_id) ON DELETE CASCADE
+    first_name VARCHAR(50) NOT NULL,  
+	gender VARCHAR(50),
+    role VARCHAR(100),                     
+    contact VARCHAR(50),
+	specialization VARCHAR(50), -- Only for doctor
+    department_id INT,  
+    doctor_id INT, -- Only for nurse
+    CONSTRAINT fk_staff_department FOREIGN KEY (department_id)
+        REFERENCES department (department_id) ON DELETE CASCADE,
+    CONSTRAINT fk_staff_doctor FOREIGN KEY (doctor_id)
+        REFERENCES staff (staff_id) ON DELETE CASCADE
 );
 
 -- PATIENT TABLE
@@ -31,22 +38,7 @@ CREATE TABLE patient (
     email VARCHAR(50),                     
     doctor_id INT,                         
     CONSTRAINT fk_patient_doctor FOREIGN KEY (doctor_id)
-        REFERENCES doctor (doctor_id) ON DELETE CASCADE
-);
-
--- STAFF TABLE
-CREATE TABLE staff (
-    staff_id SERIAL PRIMARY KEY,
-    last_name VARCHAR(50) NOT NULL,        
-    first_name VARCHAR(50) NOT NULL,       
-    role VARCHAR(100),                     
-    contact VARCHAR(50),                   
-    department_id INT,                     
-    doctor_id INT,                         
-    CONSTRAINT fk_staff_department FOREIGN KEY (department_id)
-        REFERENCES department (department_id) ON DELETE CASCADE,
-    CONSTRAINT fk_staff_doctor FOREIGN KEY (doctor_id)
-        REFERENCES doctor (doctor_id) ON DELETE CASCADE
+        REFERENCES staff (stafF_id) ON DELETE CASCADE
 );
 
 -- APPOINTMENT TABLE
@@ -58,7 +50,7 @@ CREATE TABLE appointment (
     doctor_id INT NOT NULL,                
     patient_id INT NOT NULL,               
     CONSTRAINT fk_appointment_doctor FOREIGN KEY (doctor_id)
-        REFERENCES doctor (doctor_id) ON DELETE CASCADE,
+        REFERENCES staff (staff_id) ON DELETE CASCADE,
     CONSTRAINT fk_appointment_patient FOREIGN KEY (patient_id)
         REFERENCES patient (patient_id) ON DELETE CASCADE
 );
@@ -94,7 +86,3 @@ CREATE TABLE billing (
     CONSTRAINT fk_billing_patient FOREIGN KEY (patient_id)
         REFERENCES patient (patient_id) ON DELETE CASCADE
 );
-
-
-
-select * from department;
