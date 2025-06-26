@@ -84,7 +84,7 @@ The diagram below illustrates the key entities in the Hospital Management System
 - **Billing** entries are generated per patient, based on services associated with their appointments.
 
 > This ERD ensures referential integrity and supports normalized, relational design principles (up to 3NF) for secure, maintainable, and scalable data operations.
-> ![alt text](ERD.png)
+> ![alt text](<ER _Schema.jpg>)
 
 ## 📂 Project Structure
 

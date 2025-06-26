@@ -97,8 +97,4 @@ CREATE TABLE billing (
 
 
 
-
-
-
-
 select * from department;
