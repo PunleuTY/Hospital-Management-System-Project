@@ -9,7 +9,7 @@ export default function Button({
   return (
     <button
       onClick={() => onClick && onClick()}
-      className={`${className} text-[20px] flex items-center gap-5 rounded-md bg-(--color-blue) hover:bg-blue-600 text-white px-3 py-3`}
+      className={`${className} text-[20px] flex items-center gap-5 rounded-md bg-(--color-blue) hover:bg-blue-600 text-white px-3 py-3 `}
     >
       <FaPlus className="text-[18px]" />
       <p>{content}</p>
