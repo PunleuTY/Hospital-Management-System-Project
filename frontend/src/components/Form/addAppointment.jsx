@@ -7,19 +7,10 @@ import Dropdown from '../Common/Dropdown.jsx';
 import Button from '../Common/Button.jsx';
 import { SiReacthookform } from "react-icons/si";
 
-/*
-import { Button } from '../Common/Button.jsx';
-import { Dropdown } from '../Common/Dropdown.jsx';
-import { Input } from '../Common/Input.jsx';
-*/
-
 export default function AddAppointment() {
   //const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    fullName: "",
-    phoneNumber: "",
-    emailAddress: "",
     purposeOfVisit: "",
     preferredDate: "",
     preferredTime: "",
@@ -104,25 +95,24 @@ export default function AddAppointment() {
                     </div>
                   </div>
 
+                  <div>
+                    <Label required>Status</Label>
+                      <Dropdown
+                        options={["Done","Pending", "Not Done"]}
+                        defaultLabel='Choose Status'
+                        onSelect={(value) => handleInputChange("DoctorID",value)}/>
+                  </div>
+
                   <div className='flex flex-col gap-4'>
                     <Button
-                      content={"Submit Form"}
+                      content={"Create Appointment"}
                       className="w-full font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                       onClick={handlesubmit}
                       // No need for + icon here  
                       isAddIcon={false} 
                     />
-                      
-                    
                   </div>
-
-
-
                 </div>
-
-                
-
-                
               </div>  
             </form>
           </CardContent>
@@ -130,9 +120,5 @@ export default function AddAppointment() {
       </div>
 
     </div>
-
-
-    
-
   );
 }
