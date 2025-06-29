@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import AddBilling from './components/Form/addBilling.jsx';
+import AddPatient from './components/Form/addPatient.jsx';
 /*
 import Billing from "./components/Billing.jsx";
 import Appointment from "./components/Appointment.jsx";
@@ -19,7 +19,14 @@ export default function App(){
   return (
   <BrowserRouter>
     <Routes>
-      <Route path='/' element={<AddBilling />}></Route>
+
+      <Route path='/' element={<AddPatient />}></Route>
+
+      {/*AddMediacalRecord component Done*/}
+      {/*<Route path='/' element={<AddMedicalRecord />}></Route>*/}
+
+      {/*AddBilling component Done*/}
+      {/*<Route path='/' element={<AddBilling />}></Route>*/}
 
       {/*AddAppointment componenet is Done*/}
       {/*<Route path='/' element={<AddAppointment />}></Route>*/}
