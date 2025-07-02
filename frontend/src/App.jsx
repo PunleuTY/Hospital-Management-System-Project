@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import AddStaff from './components/Form/addStaff.jsx';
+import Appointment from "./components/Appointment.jsx";
+import AddAppointment from "./components/Form/addAppointment.jsx";
 /*
 import Billing from "./components/Billing.jsx";
-import Appointment from "./components/Appointment.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 import Patient from "./components/Patient.jsx";
 import Login from "./components/Login.jsx";
@@ -20,8 +20,8 @@ export default function App(){
   <BrowserRouter>
     <Routes>
 
-      <Route path='/' element={<AddStaff />}></Route>
-
+      <Route path='/' element={<Appointment />}></Route>
+      <Route path='/addAppointment' element={<AddAppointment />}></Route>
       
 
     </Routes>
