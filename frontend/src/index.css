@@ -5,10 +5,5 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  border: 1px solid black;
   height: 100%;
-
-  --color-blue: #1d4ed8;
-  --color-red-hover: #f16868;
-  --color-dark: #16191d;
 }

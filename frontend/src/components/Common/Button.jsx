@@ -8,10 +8,10 @@ export default function Button({
 }) {
   return (
     <button
-      onClick={() => onClick && onClick()}
-      className={`${className} text-[20px] flex items-center gap-5 rounded-md bg-(--color-blue) hover:bg-blue-600 text-white px-3 py-3 `}
+      onClick={(e) => onClick && onClick(e)} // Pass the event object to the onClick function
+      className={`${className} cursor-pointer text-[16px] flex items-center justify-center gap-5 rounded-md bg-(--color-blue) hover:bg-blue-600 text-white px-3 py-2 `}
     >
-      <FaPlus className="text-[18px]" />
+      {isAddIcon && <FaPlus className="text-[14px]" />}
       <p>{content}</p>
     </button>
   );
