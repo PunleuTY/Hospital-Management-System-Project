@@ -113,7 +113,7 @@ export default function AddStaff() {
                                             onChange={(e) => handleInputChange("role", e.target.value)}  />
                                     </div>
                                     <div>
-                                        <Label required>Specialization</Label>
+                                        <Label>Specialization</Label>
                                         <Input
                                             type="text"                                           
                                             placeholder="Enter your specialization"
@@ -133,7 +133,7 @@ export default function AddStaff() {
                                     </div>
 
                                     <div>
-                                        <Label required>StaffID(Doctor)</Label>
+                                        <Label>StaffID(Doctor)</Label>
                                         <Dropdown
                                             options={[1,2,3,4,5]}
                                             defaultLabel="Select DoctorID"
