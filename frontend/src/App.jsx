@@ -7,10 +7,14 @@ import Header from "./layouts/Header.jsx";
 
 // Import Table Layout
 import Appointment from "./components/Appointment.jsx";
+<<<<<<< HEAD
+import Billing from "./components/Billing.jsx";
+=======
 import Dashboard from "./components/Dashboard.jsx";
 // import Staff from "./components/Staff.jsx";
 import Login from "./components/Login.jsx";
 
+>>>>>>> 13b17a0eab90a430eee896f532636a7df00d74ec
 /*
 import Billing from "./components/Billing.jsx";
 import Dashboard from "./components/Dashboard.jsx";
@@ -28,12 +32,24 @@ import Dropdown from "./components/Common/Dropdown.jsx";
 
 export default function App() {
   return (
+<<<<<<< HEAD
+  <BrowserRouter>
+    <Routes>
+
+      {/*<Route path='/' element={<Appointment />}></Route>*/}
+      <Route path='/' element={<Billing />}></Route>
+      
+
+    </Routes>
+  </BrowserRouter>
+=======
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard/*" element={<DashboardWithLayout />} />
       </Routes>
     </Router>
+>>>>>>> 13b17a0eab90a430eee896f532636a7df00d74ec
   );
 }
 
