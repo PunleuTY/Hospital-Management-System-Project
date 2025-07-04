@@ -10,6 +10,8 @@ import Appointment from "./components/Appointment.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 // import Staff from "./components/Staff.jsx";
 import Login from "./components/Login.jsx";
+import AddStaff from "./components/Form/addStaff.jsx";
+import AddUser from "./components/addUser.jsx";
 
 /*
 import Billing from "./components/Billing.jsx";
@@ -48,6 +50,7 @@ function DashboardWithLayout() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/appointments" element={<Appointment />} />
+          <Route path="/staff/add" element={<AddUser />} />
           {/* <Route path="/staff" element={<Staff />} /> */}
           {/* Add more routes as needed */}
         </Routes>

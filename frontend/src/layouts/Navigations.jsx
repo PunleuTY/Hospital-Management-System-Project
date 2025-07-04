@@ -6,6 +6,7 @@ import { MdOutlineDateRange } from "react-icons/md"; // Appointment
 import { FiCreditCard } from "react-icons/fi"; // Billing
 import { FiUserCheck } from "react-icons/fi";
 import { FiFileText } from "react-icons/fi"; // Medical Record
+import { IoMdPersonAdd } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 
 const navigateContent = [
@@ -44,6 +45,12 @@ const navigateContent = [
     label: "Medical Record",
     selected: false,
     navigateTo: "/dashboard/records",
+  },
+  {
+    icon: IoMdPersonAdd,
+    label: "Add User",
+    selected: false,
+    navigateTo: "/dashboard/staff/add",
   },
 ];
 
