@@ -9,6 +9,10 @@ import Dropdown from './Common/Dropdown.jsx';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './Common/Table.jsx';
 import AddBilling from './Form/addBilling.jsx';
 
+
+//Icons
+import { TiDelete } from "react-icons/ti";
+
 export default function Billing() {
     const [bills, setBills] = useState([
         {
@@ -172,7 +176,7 @@ export default function Billing() {
                                                     className="text-red-500 hover:text-red-700"
                                                     onClick={() => handleDeleteBill(bill.id)}
                                                 >
-                                                    Delete
+                                                    <TiDelete className='w-8 h-8'/>;
                                                 </button>
                                             </TableCell>
                                         </TableRow>
