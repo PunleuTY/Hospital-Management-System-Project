@@ -14,15 +14,15 @@ import Button from "./components/Common/Button.jsx";
 import Navigation from "./layouts/Navigations.jsx";
 import Dropdown from "./components/Common/Dropdown.jsx";
 */
-
+// import Patient from './components/Patient.jsx';
+import MedicalRecord from './components/Medicalrecord.jsx';
+import Patient from './components/Patient.jsx';
 export default function App(){
   return (
   <BrowserRouter>
     <Routes>
 
-      <Route path='/' element={<AddStaff />}></Route>
-
-      
+      <Route path='/' element={<Patient />}></Route>
 
     </Routes>
   </BrowserRouter>
