@@ -1,1 +1,3 @@
-export default function MedicalRecord() {}
+export default function MedicalRecord() {
+    return <div>Medical Record</div>
+}
