@@ -32,7 +32,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard/*" element={<DashboardWithLayout />} />
-        <Route path="/appointment" element={<Appointment />} />
       </Routes>
     </Router>
   );
