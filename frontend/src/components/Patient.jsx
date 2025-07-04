@@ -1,224 +1,353 @@
-export default function Patient() {}
-// PatientsTable.jsx
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
 
-const initialPatients = [
-  { id: "P001", name: "John Smith", age: 45, gender: "Male", status: "Active", lastVisit: "2024-01-15", action: "Routine Checkup" },
-  { id: "P002", name: "Sarah Wilson", age: 32, gender: "Female", status: "Active", lastVisit: "2024-01-14", action: "Vaccination" },
-  { id: "P003", name: "Mike Davis", age: 58, gender: "Male", status: "Inactive", lastVisit: "2024-01-10", action: "Consultation" },
-  { id: "P004", name: "Emma Taylor", age: 28, gender: "Female", status: "Active", lastVisit: "2024-01-16", action: "Follow-up" },
-];
+export default function Patient() {
+  const initialState = {
+    patient_id: "",
+    last_name: "",
+    first_name: "",
+    gender: "",
+    height: "",
+    weight: "",
+    date_of_birth: "",
+    address: "",
+    contact: "",
+    email: "",
+    doctor_id: "",
+  };
 
-export default function PatientsTable() {
   const [patients, setPatients] = useState([]);
-  const [allPatients, setAllPatients] = useState([]);
-  const [filter, setFilter] = useState("");
+  const [patientHistory, setPatientHistory] = useState([]);
+  const [formData, setFormData] = useState(initialState);
+  const [editing, setEditing] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
+  const [emailError, setEmailError] = useState("");
 
-  const [form, setForm] = useState({ name: "", age: "", gender: "Male", status: "Active", lastVisit: "", action: "" });
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [historyOpen, setHistoryOpen] = useState(false);
-
-  // Load from localStorage on first render
   useEffect(() => {
-    const savedPatients = JSON.parse(localStorage.getItem('patients')) || initialPatients;
-    const savedAllPatients = JSON.parse(localStorage.getItem('allPatients')) || initialPatients;
-    setPatients(savedPatients);
-    setAllPatients(savedAllPatients);
+    const stored = JSON.parse(localStorage.getItem("patients")) || [];
+    setPatients(stored);
+
+    const history = JSON.parse(localStorage.getItem("patientHistory")) || [];
+    setPatientHistory(history);
   }, []);
 
-  // Save to localStorage whenever patients or allPatients changes
   useEffect(() => {
-    localStorage.setItem('patients', JSON.stringify(patients));
-    localStorage.setItem('allPatients', JSON.stringify(allPatients));
-  }, [patients, allPatients]);
+    localStorage.setItem("patients", JSON.stringify(patients));
+  }, [patients]);
 
-  const handleAddPatient = () => {
-    const newPatient = {
-      id: `P00${allPatients.length + 1}`,
-      ...form,
-    };
-    setPatients([...patients, newPatient]);
-    setAllPatients([...allPatients, newPatient]);
-    setForm({ name: "", age: "", gender: "Male", status: "Active", lastVisit: "", action: "" });
-    setDialogOpen(false);
+  useEffect(() => {
+    localStorage.setItem("patientHistory", JSON.stringify(patientHistory));
+  }, [patientHistory]);
+
+  const validateEmail = (email) => {
+    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return pattern.test(email);
   };
 
-  const handleRemove = (id) => {
-    setPatients(patients.filter((p) => p.id !== id));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "email") {
+      setEmailError(validateEmail(value) ? "" : "Invalid email format");
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const toggleStatus = (id) => {
-    setPatients(
-      patients.map((p) =>
-        p.id === id ? { ...p, status: p.status === "Active" ? "Inactive" : "Active" } : p
-      )
-    );
+  const generatePatientId = () => {
+    const existingIds = patients.map((p) => p.patient_id);
+    let maxNumber = 0;
+
+    existingIds.forEach((id) => {
+      const number = parseInt(id.replace("P", ""), 10);
+      if (!isNaN(number) && number > maxNumber) {
+        maxNumber = number;
+      }
+    });
+
+    const nextNumber = maxNumber + 1;
+    return `P${String(nextNumber).padStart(3, "0")}`;
   };
 
-  const filteredPatients = patients.filter((p) => {
-    const matchesFilter = filter === "" || p.status === filter;
-    const matchesSearch =
-      p.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.age.toString().includes(searchTerm);
-    return matchesFilter && matchesSearch;
-  });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validateEmail(formData.email)) {
+      setEmailError("Invalid email format");
+      return;
+    }
+
+    if (editing) {
+      setPatients((prev) =>
+        prev.map((p) => (p.patient_id === formData.patient_id ? formData : p))
+      );
+    } else {
+      const newPatient = {
+        ...formData,
+        patient_id: generatePatientId(),
+      };
+      setPatients((prev) => [...prev, newPatient]);
+      setPatientHistory((prev) => [...prev, newPatient]);
+    }
+
+    setFormData(initialState);
+    setEditing(false);
+    setShowForm(false);
+  };
+
+  const handleEdit = (patient) => {
+    setFormData(patient);
+    setEditing(true);
+    setShowForm(true);
+    setEmailError("");
+  };
+
+  const handleDelete = (id) => {
+    setPatients((prev) => prev.filter((p) => p.patient_id !== id));
+    if (formData.patient_id === id) {
+      setFormData(initialState);
+      setEditing(false);
+    }
+  };
+
+  const handleView = (patient) => {
+    alert(JSON.stringify(patient, null, 2));
+  };
+
+  const handleCancel = () => {
+    setFormData(initialState);
+    setEditing(false);
+    setShowForm(false);
+    setEmailError("");
+  };
+
+  const handleSearch = () => {
+    setActiveSearch(searchTerm);
+  };
+
+  const filteredPatients = patients.filter((p) =>
+    Object.values(p)
+      .join(" ")
+      .toLowerCase()
+      .includes(activeSearch.toLowerCase())
+  );
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-semibold">Patients</h1>
-        <div className="flex gap-2">
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-blue-600 text-white hover:bg-blue-700">+ Add Patient</Button>
-            </DialogTrigger>
-            <DialogContent className="space-y-4">
-              <div>
-                <Label>Name</Label>
-                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-              </div>
-              <div>
-                <Label>Age</Label>
-                <Input type="number" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} />
-              </div>
-              <div>
-                <Label>Gender</Label>
-                <Select value={form.gender} onValueChange={(value) => setForm({ ...form, gender: value })}>
-                  <SelectTrigger>{form.gender}</SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Status</Label>
-                <Select value={form.status} onValueChange={(value) => setForm({ ...form, status: value })}>
-                  <SelectTrigger>{form.status}</SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Active">Active</SelectItem>
-                    <SelectItem value="Inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Last Visit</Label>
-                <Input type="date" value={form.lastVisit} onChange={(e) => setForm({ ...form, lastVisit: e.target.value })} />
-              </div>
-              <div>
-                <Label>Action</Label>
-                <Input value={form.action} onChange={(e) => setForm({ ...form, action: e.target.value })} />
-              </div>
-              <Button onClick={handleAddPatient}>Add</Button>
-            </DialogContent>
-          </Dialog>
-          <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline">History</Button>
-            </DialogTrigger>
-            <DialogContent className="space-y-2 max-h-[400px] overflow-y-auto">
-              <h2 className="text-lg font-semibold">Patient History</h2>
-              {allPatients.map((p) => (
-                <div key={p.id} className="border p-2 rounded-md">
-                  <p><strong>ID:</strong> {p.id}</p>
-                  <p><strong>Name:</strong> {p.name}</p>
-                  <p><strong>Age:</strong> {p.age}</p>
-                  <p><strong>Gender:</strong> {p.gender}</p>
-                  <p><strong>Status:</strong> {p.status}</p>
-                  <p><strong>Last Visit:</strong> {p.lastVisit}</p>
-                  <p><strong>Action:</strong> {p.action}</p>
-                </div>
-              ))}
-            </DialogContent>
-          </Dialog>
+    <div className="p-4 relative">
+      <h1 className="text-xl font-bold mb-4">Patient Management</h1>
+
+      {/* Top Button Row */}
+      <div className="flex justify-between mb-4">
+        <div className="flex w-full gap-2">
+          <input
+            type="text"
+            placeholder="Search by name, email, ID..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="p-2 border border-gray-300 rounded w-full"
+          />
+          <button
+            onClick={handleSearch}
+            className="px-4 py-2 bg-gray-600 text-white rounded"
+          >
+            Search
+          </button>
+        </div>
+        <div className="flex gap-2 ml-4">
+          <button
+            onClick={() => setShowHistory(true)}
+            className="px-4 py-2 bg-purple-600 text-white rounded"
+          >
+            History
+          </button>
+          <button
+            onClick={() => {
+              setFormData(initialState);
+              setEditing(false);
+              setShowForm(true);
+              setEmailError("");
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Add Patient
+          </button>
         </div>
       </div>
 
-      <div className="flex gap-4 mb-4">
-        <Input
-          placeholder="Search patients..."
-          className="w-full max-w-sm"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">Filter by status</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setFilter("")}>All</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setFilter("Active")}>Active</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setFilter("Inactive")}>Inactive</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      {/* Add/Edit Patient Modal */}
+      {showForm && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-10">
+          <div className="bg-white p-6 rounded shadow-md w-[90%] max-w-3xl">
+            <h2 className="text-lg font-semibold mb-4">
+              {editing ? "Edit Patient" : "Add Patient"}
+            </h2>
+            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+              {Object.keys(initialState)
+                .filter((key) => key !== "patient_id")
+                .map((key) => (
+                  <div key={key}>
+                    <label className="block text-sm font-medium mb-1">
+                      {key.replace(/_/g, " ")}
+                    </label>
+                    {key === "gender" ? (
+                      <select
+                        className="w-full p-2 border border-gray-300 rounded"
+                        name={key}
+                        value={formData[key]}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    ) : (
+                      <input
+                        className="w-full p-2 border border-gray-300 rounded"
+                        type={key === "date_of_birth" ? "date" : "text"}
+                        name={key}
+                        value={formData[key]}
+                        onChange={handleChange}
+                        required
+                      />
+                    )}
+                    {key === "email" && emailError && (
+                      <p className="text-red-600 text-sm">{emailError}</p>
+                    )}
+                  </div>
+                ))}
+              <div className="col-span-2 flex justify-end gap-2 mt-4">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-green-600 text-white rounded"
+                  disabled={emailError !== ""}
+                >
+                  {editing ? "Update" : "Add"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="px-4 py-2 bg-gray-500 text-white rounded"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
-      <Card>
-        <CardContent className="overflow-x-auto p-0">
-          <table className="min-w-full text-sm text-left">
-            <thead className="bg-gray-100 border-b text-gray-600">
-              <tr>
-                <th className="px-6 py-3">Patient ID</th>
-                <th className="px-6 py-3">Name</th>
-                <th className="px-6 py-3">Age</th>
-                <th className="px-6 py-3">Gender</th>
-                <th className="px-6 py-3">Status</th>
-                <th className="px-6 py-3">Last Visit</th>
-                <th className="px-6 py-3">Actions</th>
-                <th className="px-6 py-3">Remove</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPatients.map((patient) => (
-                <tr key={patient.id} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">{patient.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{patient.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{patient.age}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{patient.gender}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <Button
-                      className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                        patient.status === "Active" ? "bg-black text-white" : "bg-gray-200 text-gray-700"
-                      }`}
-                      onClick={() => toggleStatus(patient.id)}
-                    >
-                      {patient.status}
-                    </Button>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{patient.lastVisit}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost">...</Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem>{patient.action}</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <Button variant="destructive" onClick={() => handleRemove(patient.id)}>Remove</Button>
-                  </td>
+      {/* History Modal */}
+      {showHistory && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-20">
+          <div className="bg-white p-6 rounded shadow-md w-[90%] max-w-4xl max-h-[90vh] overflow-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Patient History</h2>
+              <button
+                onClick={() => setShowHistory(false)}
+                className="text-red-600 hover:underline"
+              >
+                Close
+              </button>
+            </div>
+            <table className="w-full table-auto border-collapse border border-gray-300 text-sm">
+              <thead className="bg-gray-100">
+                <tr>
+                  {Object.keys(initialState).map((key) => (
+                    <th key={key} className="border p-2 capitalize">
+                      {key.replace(/_/g, " ")}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
+              </thead>
+              <tbody>
+                {patientHistory.length === 0 ? (
+                  <tr>
+                    <td colSpan="12" className="text-center p-4">
+                      No history found.
+                    </td>
+                  </tr>
+                ) : (
+                  patientHistory.map((p, idx) => (
+                    <tr key={idx} className="hover:bg-gray-50">
+                      {Object.keys(initialState).map((key) => (
+                        <td key={key} className="border p-2">
+                          {p[key]}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Patients Table */}
+      <table className="w-full table-auto border-collapse border border-gray-300 text-sm">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="border p-2">Patient ID</th>
+            <th className="border p-2">Last Name</th>
+            <th className="border p-2">First Name</th>
+            <th className="border p-2">Gender</th>
+            <th className="border p-2">Height (Cm)</th>
+            <th className="border p-2">Weight (Kg)</th>
+            <th className="border p-2">Date of Birth</th>
+            <th className="border p-2">Address</th>
+            <th className="border p-2">Contact</th>
+            <th className="border p-2">Email</th>
+            <th className="border p-2">Doctor ID</th>
+            <th className="border p-2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredPatients.map((patient) => (
+            <tr key={patient.patient_id} className="hover:bg-gray-50 group">
+              <td className="border p-2">{patient.patient_id}</td>
+              <td className="border p-2">{patient.last_name}</td>
+              <td className="border p-2">{patient.first_name}</td>
+              <td className="border p-2">{patient.gender}</td>
+              <td className="border p-2">{patient.height}</td>
+              <td className="border p-2">{patient.weight}</td>
+              <td className="border p-2">{patient.date_of_birth}</td>
+              <td className="border p-2">{patient.address}</td>
+              <td className="border p-2">{patient.contact}</td>
+              <td className="border p-2">{patient.email}</td>
+              <td className="border p-2">{patient.doctor_id}</td>
+              <td className="border p-2 text-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity space-x-2">
+                  <button
+                    className="text-blue-600 hover:underline"
+                    onClick={() => handleView(patient)}
+                  >
+                    View
+                  </button>
+                  <button
+                    className="text-green-600 hover:underline"
+                    onClick={() => handleEdit(patient)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="text-red-600 hover:underline"
+                    onClick={() => handleDelete(patient.patient_id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+          {filteredPatients.length === 0 && (
+            <tr>
+              <td colSpan="12" className="text-center p-4">
+                No patients found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }

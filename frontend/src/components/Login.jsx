@@ -24,19 +24,19 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (userName.trim() === "") {
-      setUsernameErr(true);
-    } else {
-      setUsernameErr(false);
-    }
-    if (password.trim() === "") {
-      setPassErr(true);
-    } else {
-      setPassErr(false);
-    }
-    if (usernameErr || passErr) {
-      return;
-    }
+    // if (userName.trim() === "") {
+    //   setUsernameErr(true);
+    // } else {
+    //   setUsernameErr(false);
+    // }
+    // if (password.trim() === "") {
+    //   setPassErr(true);
+    // } else {
+    //   setPassErr(false);
+    // }
+    // if (usernameErr || passErr) {
+    //   return;
+    // }
 
     console.log("Username:", userName);
     console.log("Password:", password);

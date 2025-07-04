@@ -7,14 +7,12 @@ import Header from "./layouts/Header.jsx";
 
 // Import Table Layout
 import Appointment from "./components/Appointment.jsx";
-<<<<<<< HEAD
-import Billing from "./components/Billing.jsx";
-=======
 import Dashboard from "./components/Dashboard.jsx";
 // import Staff from "./components/Staff.jsx";
 import Login from "./components/Login.jsx";
+import AddStaff from "./components/Form/addStaff.jsx";
+import AddUser from "./components/addUser.jsx";
 
->>>>>>> 13b17a0eab90a430eee896f532636a7df00d74ec
 /*
 import Billing from "./components/Billing.jsx";
 import Dashboard from "./components/Dashboard.jsx";
@@ -32,24 +30,12 @@ import Dropdown from "./components/Common/Dropdown.jsx";
 
 export default function App() {
   return (
-<<<<<<< HEAD
-  <BrowserRouter>
-    <Routes>
-
-      {/*<Route path='/' element={<Appointment />}></Route>*/}
-      <Route path='/' element={<Billing />}></Route>
-      
-
-    </Routes>
-  </BrowserRouter>
-=======
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard/*" element={<DashboardWithLayout />} />
       </Routes>
     </Router>
->>>>>>> 13b17a0eab90a430eee896f532636a7df00d74ec
   );
 }
 
@@ -64,6 +50,7 @@ function DashboardWithLayout() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/appointments" element={<Appointment />} />
+          <Route path="/staff/add" element={<AddUser />} />
           {/* <Route path="/staff" element={<Staff />} /> */}
           {/* Add more routes as needed */}
         </Routes>
