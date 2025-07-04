@@ -7,31 +7,26 @@ import {
   deletePatientSv,
 } from "../services/patient_service.js";
 
-// Retrieve all patients with pagination
+// GET /api/patients?page=&limit=
 export const getAllPatients = async (req, res) => {
-  const page = Math.max(1, parseInt(req.query.page) || 1);
-  const limit = Math.max(1, parseInt(req.query.limit) || 10);
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.max(1, parseInt(req.query.limit, 10) || 10);
   const offset = (page - 1) * limit;
 
   try {
     const { rows, count } = await listPatients({ limit, offset });
     const totalPages = Math.ceil(count / limit);
-
     return success(res, {
       data: rows,
-      meta: {
-        total: count,
-        page,
-        limit,
-        totalPages,
-      },
+      meta: { total: count, page, limit, totalPages },
     });
-  } catch (e) {
-    return fail(res, e);
+  } catch (err) {
+    console.error("getAllPatients error:", err);
+    return fail(res, err);
   }
 };
 
-// Retrieve a patient by ID
+// GET /api/patients/:id
 export const getPatientById = async (req, res) => {
   try {
     const patient = await findPatientById(req.params.id);
@@ -39,21 +34,22 @@ export const getPatientById = async (req, res) => {
       return res.status(404).json({ status: "error", message: "Not Found" });
     }
     return success(res, patient);
-  } catch (e) {
-    return fail(res, e);
+  } catch (err) {
+    return fail(res, err);
   }
 };
 
-// Create a new patient
+// POST /api/patients
 export const createPatient = async (req, res) => {
   try {
     const patient = await createPatientSv(req.body);
     return success(res, patient, 201);
-  } catch (e) {
-    return fail(res, e);
+  } catch (err) {
+    return fail(res, err);
   }
 };
-// Update a patient
+
+// PUT /api/patients/:id
 export const updatePatient = async (req, res) => {
   try {
     const [rows] = await updatePatientSv(req.params.id, req.body);
@@ -66,14 +62,16 @@ export const updatePatient = async (req, res) => {
   }
 };
 
-// Delete a patient
+// DELETE /api/patients/:id
 export const deletePatient = async (req, res) => {
   try {
-    const rows = await deletePatientSv(req.params.id, req.body);
+    // destroy() returns the number of rows deleted
+    const rows = await deletePatientSv(req.params.id);
     if (rows === 0) {
       return res.status(404).json({ status: "error", message: "Not Found" });
     }
-  } catch (e) {
-    return fail(res, e);
+    return success(res, { deleted: rows });
+  } catch (err) {
+    return fail(res, err);
   }
 };
