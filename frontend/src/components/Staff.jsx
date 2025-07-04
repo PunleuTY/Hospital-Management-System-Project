@@ -1,1 +1,3 @@
-export default function Staff() {}
+export default function Staff() {
+  return <div></div>;
+}

@@ -1,25 +1,21 @@
 @import "tailwindcss";
 @import "@/style/CommonComponent.css";
-@import "tw-animate-css";
+/* @import "tw-animate-css"; */
 
 @custom-variant dark (&:is(.dark *));
 
 * {
-  box-sizing: border-box;
+  @apply box-border;
 }
 
 html,
 body {
-  height: 100%;
-  width: 100%;
-  min-width: 300px;
+  @apply h-full w-full min-w-[300px] p-0 m-0;
 }
 
 #root {
-  min-height: 100%;
   display: flex;
-  align-items: center;
-  flex-direction: column;
+  height: 100vh;
 }
 
 @theme inline {
@@ -61,6 +57,23 @@ body {
 }
 
 :root {
+  --color-blue: #1d4ed8;
+  --color-green: #16a34a;
+  --color-yellow: #eab308;
+  --color-hover-blue: rgba(0, 68, 255, 0.092);
+  --color-active-blue: rgba(0, 68, 255, 0.173);
+  --color-bg-light-blue: #ddebfe;
+  --color-bg-light-green: #e1fdea;
+  --color-bg-light-yellow: #fdf6e1;
+  --color-red-hover: #f16868;
+  --color-dark: #16191d;
+  --color-gray: #6e6e6e;
+  --color-light-gray: #a1a1a1;
+  --color-dark-gray: #545454;
+  --color-dark-blue: #1e3a8a;
+  --color-dark-green: #14532d;
+  --color-dark-yellow: #514511;
+  --color-light-cyan: #eff8fd;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
