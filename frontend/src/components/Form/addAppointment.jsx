@@ -1,5 +1,5 @@
+// addAppointment
 import { useState } from 'react';
-//import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardContent } from '../Common/Card.jsx';
 import Label from '../Common/Label.jsx';
 import Input from '../Common/Input.jsx';
@@ -7,8 +7,13 @@ import Dropdown from '../Common/Dropdown.jsx';
 import Button from '../Common/Button.jsx';
 import { SiReacthookform } from "react-icons/si";
 
+
+// Animation things
+import { motion } from "framer-motion";
+import ModalWrapper from '../Common/Modal-wrapper.jsx';
+
+
 export default function AddAppointment() {
-  //const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     purposeOfVisit: "",
@@ -47,7 +52,8 @@ export default function AddAppointment() {
           <CardContent>
             <form onSubmit={handlesubmit} className="space-y-6">
               {/*nothing important just keep border of Patient information part*/}
-              <div>
+
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.3 }}>
                 <div className="space-y-4">
                   <div>
                     <Label required>Purpose of Visit</Label>
@@ -103,7 +109,7 @@ export default function AddAppointment() {
                         onSelect={(value) => handleInputChange("DoctorID",value)}/>
                   </div>
 
-                  <div className='flex flex-col gap-4'>
+                  <motion.div className='flex flex-col gap-4' initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.3 }}>
                     <Button
                       content={"Create Appointment"}
                       className="w-full font-medium rounded-lg text-sm px-5 py-2.5 text-center"
@@ -111,9 +117,9 @@ export default function AddAppointment() {
                       // No need for + icon here  
                       isAddIcon={false} 
                     />
-                  </div>
+                  </motion.div>
                 </div>
-              </div>  
+              </motion.div>  
             </form>
           </CardContent>
         </Card>
