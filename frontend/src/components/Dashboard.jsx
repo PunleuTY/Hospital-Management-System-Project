@@ -4,8 +4,13 @@ import { FaDollarSign } from "react-icons/fa6";
 import { MdOutlineDateRange } from "react-icons/md";
 import { FaRegClock } from "react-icons/fa";
 import Button from "./Common/Button";
+import ModalWrapper from "./Common/Modal-wrapper";
+import AddAppointment from "./Form/addAppointment.jsx";
 
 export default function Dashboard() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
   const style = {
     infoCard: "border flex-1 p-3 py-5 rounded-md flex flex-col gap-2",
   };
@@ -122,7 +127,21 @@ export default function Dashboard() {
               <AppointmentCard key={index} data={appointment} />
             ))}
           </div>
-          <Button content={"Add Appointment"} className={"w-full"} />
+          <Button
+            content={"Add Appointment"}
+            className={"w-full"}
+            onClick={openModal}
+          />
+          <ModalWrapper
+            isOpen={isModalOpen}
+            onClose={closeModal}
+            size="md" // Options: sm, md, lg, xl, full
+            showCloseButton={true}
+            closeOnBackdropClick={true}
+            closeOnEscape={true}
+          >
+            <AddAppointment onClose={closeModal} />
+          </ModalWrapper>
         </div>
       </div>
     </div>
