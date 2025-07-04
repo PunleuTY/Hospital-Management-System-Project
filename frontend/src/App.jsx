@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Appointment from "./components/Appointment.jsx";
-import AddAppointment from "./components/Form/addAppointment.jsx";
+import Billing from "./components/Billing.jsx";
 /*
 import Billing from "./components/Billing.jsx";
 import Dashboard from "./components/Dashboard.jsx";
@@ -20,8 +20,8 @@ export default function App(){
   <BrowserRouter>
     <Routes>
 
-      <Route path='/' element={<Appointment />}></Route>
-      <Route path='/addAppointment' element={<AddAppointment />}></Route>
+      {/*<Route path='/' element={<Appointment />}></Route>*/}
+      <Route path='/' element={<Billing />}></Route>
       
 
     </Routes>

@@ -1,6 +1,5 @@
 // Appointment Pgae
 import { React } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Button from './Common/Button'; 
 import { useState } from 'react';
 import Input from './Common/Input';
@@ -103,17 +102,16 @@ export default function Appointment() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="sticky top-0 bg-gray-100 z-10">appointment id</TableHead>
-                                    <TableHead className="sticky top-0 bg-gray-100 z-10">patient</TableHead>
-                                    <TableHead className="sticky top-0 bg-gray-100 z-10">doctor</TableHead>
-                                    <TableHead className="sticky top-0 bg-gray-100 z-10">date</TableHead>
-                                    <TableHead className="sticky top-0 bg-gray-100 z-10">time</TableHead>
-                                    <TableHead className="sticky top-0 bg-gray-100 z-10">status</TableHead>
-                                    <TableHead className="sticky top-0 bg-gray-100 z-10">actions</TableHead>
+                                    <TableHead className="sticky top-0 bg-gray-200 z-10">APPOINTMENT ID</TableHead>
+                                    <TableHead className="sticky top-0 bg-gray-200 z-10">PATIENT</TableHead>
+                                    <TableHead className="sticky top-0 bg-gray-200 z-10">DOCTOR</TableHead>
+                                    <TableHead className="sticky top-0 bg-gray-200 z-10">DATE</TableHead>
+                                    <TableHead className="sticky top-0 bg-gray-200 z-10">TIME</TableHead>
+                                    <TableHead className="sticky top-0 bg-gray-200 z-10">STATUS</TableHead>
+                                    <TableHead className="sticky top-0 bg-gray-200 z-10">ACTIONS</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                
                                 {appointments && appointments.map((appointment) => (
                                     <TableRow key={appointment.id}>
                                         <TableCell>{appointment.id}</TableCell>
@@ -123,7 +121,7 @@ export default function Appointment() {
                                         <TableCell>{appointment.time}</TableCell>
                                         <TableCell>
                                             <Dropdown
-                                                options={appointment.status === "" ? ["Pending", "Confirmed", "Cancelled"] : ["Confirmed", "Cancelled"]  }
+                                                options={appointment.status === "Pending" ? ["Pending", "Confirmed", "Cancelled"] : ["Confirmed", "Cancelled"]  }
                                                 value={appointment.status}
                                                 onSelect={(value) => {handleStatusChange(appointment.id, value)}}
                                                 
@@ -142,6 +140,7 @@ export default function Appointment() {
                     </div>
                 </div>
             </PageBlurWrapper>
+
             <ModalWrapper
                 isOpen={isModalOpen}
                 onClose={closeModal}
