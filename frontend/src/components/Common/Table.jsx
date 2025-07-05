@@ -15,7 +15,7 @@ const TableBody = ({ children, className = "" }) => {
 }
 
 const TableRow = ({ children, className = "" }) => {
-  return <tr className={`hover:bg-gray-50 ${className}`}>{children}</tr>
+  return <tr className={`hover:bg-gray-100 ${className}`}>{children}</tr>
 }
 
 const TableHead = ({ children, className = "" }) => {

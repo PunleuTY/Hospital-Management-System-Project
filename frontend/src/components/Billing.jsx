@@ -83,7 +83,7 @@ export default function Billing() {
 
 
     const handleStatusChange = (billId, newStatus) => {
-    setBills((prev) => prev.map((bill) => (bill.id === billId ? { ...bill, status: newStatus } : bill)))
+        setBills((prev) => prev.map((bill) => (bill.id === billId ? { ...bill, status: newStatus } : bill)))
     }
 
     const handleDeleteBill = (billId) => {
@@ -166,6 +166,7 @@ export default function Billing() {
                                             <Dropdown
                                                 options={["pending","paid","unpaid"]}
                                                 defaultLabel='Select Status'
+                                                value={bill.status}
                                                 onSelect={(value) => handleStatusChange(bill.id, value)}
                                                 
                                             />

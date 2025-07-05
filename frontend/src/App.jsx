@@ -9,6 +9,7 @@ import Header from "./layouts/Header.jsx";
 import Appointment from "./components/Appointment.jsx";
 import Billing from "./components/Billing.jsx";
 import Dashboard from "./components/Dashboard.jsx";
+import Staff from "./components/Staff.jsx";
 // import Staff from "./components/Staff.jsx";
 import Login from "./components/Login.jsx";
 
@@ -34,7 +35,8 @@ export default function App() {
         <Route path="/" element={<Login />} />
         <Route path="/dashboard/*" element={<DashboardWithLayout />} />
         <Route path="/appointment" element={<Appointment />} />
-        <Route path="/billing" element={<Billing />} />
+        <Route path="/billing" element={<Billing />} />\
+        <Route path="/staff" element={<Staff />} />
       </Routes>
     </Router>
   );
@@ -47,14 +49,15 @@ function DashboardWithLayout() {
     <>
       <Navigations sideBarOpen={sideBarOpen} setSideBarOpen={setSideBarOpen} />
       <div className="w-full h-full">
-        <Header setSideBar={setSideBarOpen} />
+        <Header setSideBar={setSideBarOpen} /> 
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/appointments" element={<Appointment />} />
-          {/* <Route path="/staff" element={<Staff />} /> */}
+          <Route path="/staff" element={<Staff />} />
           {/* Add more routes as needed */}
         </Routes>
       </div>
     </>
+    
   );
 }
