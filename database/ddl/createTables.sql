@@ -50,13 +50,10 @@ CREATE TABLE patient_doctor (
     patient_doctor_id SERIAL PRIMARY KEY,
     patient_id INT NOT NULL,
     doctor_id INT NOT NULL,
-    assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_primary_doctor BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_patient_doctor_patient FOREIGN KEY (patient_id)
         REFERENCES patient (patient_id) ON DELETE CASCADE,
     CONSTRAINT fk_patient_doctor_doctor FOREIGN KEY (doctor_id)
         REFERENCES staff (staff_id) ON DELETE CASCADE,
-    CONSTRAINT uk_patient_doctor UNIQUE (patient_id, doctor_id)
 );
 
 ALTER TABLE patient_doctor ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
