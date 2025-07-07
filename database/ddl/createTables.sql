@@ -8,6 +8,8 @@ CREATE TABLE department (
     location VARCHAR(255)                  
 );
 
+ALTER TABLE department ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
 -- STAFF TABLE
 CREATE TABLE staff (
     staff_id SERIAL PRIMARY KEY,
@@ -25,21 +27,36 @@ CREATE TABLE staff (
         REFERENCES staff (staff_id) ON DELETE CASCADE
 );
 
+ALTER TABLE staff ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
 -- PATIENT TABLE
 CREATE TABLE patient (
     patient_id SERIAL PRIMARY KEY,
     last_name VARCHAR(50) NOT NULL,       
-    first_name VARCHAR(50) NOT NULL,      
+    first_name VARCHAR(50) NOT NULL,
+    gender VARCHAR(20),      
     height NUMERIC(10,2),                 
     weight NUMERIC(10,2),                 
     date_of_birth DATE NOT NULL,          
     address VARCHAR(255),                 
     contact VARCHAR(50),                  
-    email VARCHAR(50),                     
-    doctor_id INT,                         
-    CONSTRAINT fk_patient_doctor FOREIGN KEY (doctor_id)
-        REFERENCES staff (stafF_id) ON DELETE CASCADE
+    email VARCHAR(50)                     
 );
+
+ALTER TABLE patient ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+-- PATIENT_DOCTOR JUNCTION TABLE (Many-to-Many relationship)
+CREATE TABLE patient_doctor (
+    patient_doctor_id SERIAL PRIMARY KEY,
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    CONSTRAINT fk_patient_doctor_patient FOREIGN KEY (patient_id)
+        REFERENCES patient (patient_id) ON DELETE CASCADE,
+    CONSTRAINT fk_patient_doctor_doctor FOREIGN KEY (doctor_id)
+        REFERENCES staff (staff_id) ON DELETE CASCADE,
+);
+
+ALTER TABLE patient_doctor ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- APPOINTMENT TABLE
 CREATE TABLE appointment (
@@ -55,6 +72,8 @@ CREATE TABLE appointment (
         REFERENCES patient (patient_id) ON DELETE CASCADE
 );
 
+ALTER TABLE appointment ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
 -- MEDICAL RECORD TABLE
 CREATE TABLE medical_record (
     record_id SERIAL PRIMARY KEY,
@@ -69,6 +88,8 @@ CREATE TABLE medical_record (
     CONSTRAINT fk_record_appointment FOREIGN KEY (appointment_id)
         REFERENCES appointment (appointment_id) ON DELETE CASCADE
 );
+
+ALTER TABLE medical_record ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- BILLING TABLE
 CREATE TABLE billing (
@@ -86,3 +107,5 @@ CREATE TABLE billing (
     CONSTRAINT fk_billing_patient FOREIGN KEY (patient_id)
         REFERENCES patient (patient_id) ON DELETE CASCADE
 );
+
+ALTER TABLE billing ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
