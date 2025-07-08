@@ -10,25 +10,15 @@ import Appointment from "./components/Appointment.jsx";
 import Billing from "./components/Billing.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 import Staff from "./components/Staff.jsx";
+import Patient from "./components/Patient.jsx";
+import MedicalRecord from "./components/Medicalrecord.jsx";
+
 // import Staff from "./components/Staff.jsx";
 import Login from "./components/Login.jsx";
 import AddStaff from "./components/Form/addStaff.jsx";
 import AddUser from "./components/addUser.jsx";
 
-/*
-import Billing from "./components/Billing.jsx";
-import Dashboard from "./components/Dashboard.jsx";
-import Patient from "./components/Patient.jsx";
-import Login from "./components/Login.jsx";
-import Staff from "./components/Staff.jsx";
-*/
-/*
-import Button from "./components/Common/Button.jsx";
-import Navigation from "./layouts/Navigations.jsx";
-import Dropdown from "./components/Common/Dropdown.jsx";
-*/
 
-// import Patient from "./components/Patient.jsx";
 
 export default function App() {
   return (
@@ -36,12 +26,10 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard/*" element={<DashboardWithLayout />} />
-<<<<<<< HEAD
+
         <Route path="/appointment" element={<Appointment />} />
-        <Route path="/billing" element={<Billing />} />\
+        
         <Route path="/staff" element={<Staff />} />
-=======
->>>>>>> 1debfa5e389e0e9fc9ff1da5f5db8a5bc8838d1c
       </Routes>
     </Router>
   );
@@ -51,23 +39,23 @@ function DashboardWithLayout() {
   const [sideBarOpen, setSideBarOpen] = useState(true);
 
   return (
-    <>
+    
+    <div className="flex h-screen w-full">
       <Navigations sideBarOpen={sideBarOpen} setSideBarOpen={setSideBarOpen} />
-      <div className="w-full h-full">
+      <div className="flex flex-col flex-1 h-full min-w-0">
         <Header setSideBar={setSideBarOpen} /> 
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/appointments" element={<Appointment />} />
-<<<<<<< HEAD
-          <Route path="/staff" element={<Staff />} />
-=======
           <Route path="/staff/add" element={<AddUser />} />
-          {/* <Route path="/staff" element={<Staff />} /> */}
->>>>>>> 1debfa5e389e0e9fc9ff1da5f5db8a5bc8838d1c
+          <Route path="/staff" element={<Staff />} />
+          <Route path="/billing" element={<Billing />} />
+          <Route path="/patient" element={<Patient />} />
+          <Route path="/records" element={<MedicalRecord />} />
+          <Route path="/patient" element={<Patient />} />
           {/* Add more routes as needed */}
         </Routes>
       </div>
-    </>
-    
+    </div>
   );
 }

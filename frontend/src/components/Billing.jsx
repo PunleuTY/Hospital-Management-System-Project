@@ -177,7 +177,7 @@ export default function Billing() {
                                                     className="text-red-500 hover:text-red-700"
                                                     onClick={() => handleDeleteBill(bill.id)}
                                                 >
-                                                    <TiDelete className='w-8 h-8'/>;
+                                                    <TiDelete className='w-8 h-8'/>
                                                 </button>
                                             </TableCell>
                                         </TableRow>
