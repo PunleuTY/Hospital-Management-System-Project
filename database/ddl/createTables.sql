@@ -18,9 +18,9 @@ CREATE TABLE staff (
 	gender VARCHAR(50),
     role VARCHAR(100),                     
     contact VARCHAR(50),
-	specialization VARCHAR(50), -- Only for doctor
+	specialization VARCHAR(50) DEFAULT NULL, -- Only for doctor
     department_id INT,  
-    doctor_id INT, -- Only for nurse
+    doctor_id INT DEFAULT NULL, -- Only for nurse
     CONSTRAINT fk_staff_department FOREIGN KEY (department_id)
         REFERENCES department (department_id) ON DELETE CASCADE,
     CONSTRAINT fk_staff_doctor FOREIGN KEY (doctor_id)
@@ -33,8 +33,7 @@ ALTER TABLE staff ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 CREATE TABLE patient (
     patient_id SERIAL PRIMARY KEY,
     last_name VARCHAR(50) NOT NULL,       
-    first_name VARCHAR(50) NOT NULL,
-    gender VARCHAR(20),      
+    first_name VARCHAR(50) NOT NULL,    
     height NUMERIC(10,2),                 
     weight NUMERIC(10,2),                 
     date_of_birth DATE NOT NULL,          
