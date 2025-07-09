@@ -7,7 +7,6 @@ import Header from "./layouts/Header.jsx";
 
 // Import Table Layout
 import Appointment from "./components/Appointment.jsx";
-import Billing from "./components/Billing.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 import Staff from "./components/Staff.jsx";
 import Patient from "./components/Patient.jsx";
@@ -18,8 +17,6 @@ import Login from "./components/Login.jsx";
 import AddStaff from "./components/Form/addStaff.jsx";
 import AddUser from "./components/addUser.jsx";
 
-
-
 export default function App() {
   return (
     <Router>
@@ -28,7 +25,7 @@ export default function App() {
         <Route path="/dashboard/*" element={<DashboardWithLayout />} />
 
         <Route path="/appointment" element={<Appointment />} />
-        
+
         <Route path="/staff" element={<Staff />} />
       </Routes>
     </Router>
@@ -39,11 +36,10 @@ function DashboardWithLayout() {
   const [sideBarOpen, setSideBarOpen] = useState(true);
 
   return (
-    
     <div className="flex h-screen w-full">
       <Navigations sideBarOpen={sideBarOpen} setSideBarOpen={setSideBarOpen} />
       <div className="flex flex-col flex-1 h-full min-w-0">
-        <Header setSideBar={setSideBarOpen} /> 
+        <Header setSideBar={setSideBarOpen} />
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/appointments" element={<Appointment />} />
