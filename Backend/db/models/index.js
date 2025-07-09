@@ -4,6 +4,8 @@ import Patient from "./patient.js";
 import Staff from "./staff.js";
 import Billing from "./billing.js";
 import Department from "./department.js";
+import User from "./user.js";
+import Role from "./role.js";
 
 const models = {
   Appointment,
@@ -12,6 +14,8 @@ const models = {
   Staff,
   Billing,
   Department,
+  Role,
+  User,
 };
 
 Object.keys(models).forEach((modelName) => {
