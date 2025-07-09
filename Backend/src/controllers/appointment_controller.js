@@ -1,6 +1,7 @@
 import {
   listAllAppointments,
   createAppointmentSv,
+  findAppointmentById,
   updateAppointmentSv,
   deleteAppointmentSv,
 } from "../services/appointment_service.js";
@@ -18,16 +19,19 @@ export const getAllAppointments = async (req, res) => {
       meta: { total: count, page, limit, totalPages },
     });
   } catch (err) {
+    console.error("getAllAppointments error:", err);
     return fail(res, err);
   }
 };
 export const getAppointmentById = async (req, res) => {
   try {
     const appointment = await findAppointmentById(req.params.id);
-    if (!appointment)
+    if (!appointment) {
       return res.status(404).json({ status: "error", message: "Not Found" });
-    return success(res, appt);
+    }
+    return success(res, appointment);
   } catch (err) {
+    console.error("getAppointmentById error:", err);
     return fail(res, err);
   }
 };

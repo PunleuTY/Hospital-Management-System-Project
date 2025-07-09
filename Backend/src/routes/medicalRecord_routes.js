@@ -1,11 +1,15 @@
 import express from "express";
 import {
+  getAllMedicalRecords,
   createMedicalRecord,
   updateMedicalRecord,
   deleteMedicalRecord,
   getMedicalRecordById,
 } from "../controllers/medicalRecord_controller.js";
 const router = express.Router();
+
+// Route to get all medical records with pagination
+router.get("/api/medical_records", getAllMedicalRecords);
 
 // Route to create a new medical record
 router.post("/api/medical_records", createMedicalRecord);

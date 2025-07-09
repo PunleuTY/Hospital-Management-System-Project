@@ -7,11 +7,12 @@ import Header from "./layouts/Header.jsx";
 
 // Import Table Layout
 import Appointment from "./components/Appointment.jsx";
+import Billing from "./components/Billing.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 import Staff from "./components/Staff.jsx";
 import Patient from "./components/Patient.jsx";
 import MedicalRecord from "./components/Medicalrecord.jsx";
-import Billing from "./components/Billing.jsx"
+import Billing from "./components/Billing.jsx";
 
 // import Staff from "./components/Staff.jsx";
 import Login from "./components/Login.jsx";
@@ -24,10 +25,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard/*" element={<DashboardWithLayout />} />
-
-        <Route path="/appointment" element={<Appointment />} />
-
-        <Route path="/staff" element={<Staff />} />
       </Routes>
     </Router>
   );

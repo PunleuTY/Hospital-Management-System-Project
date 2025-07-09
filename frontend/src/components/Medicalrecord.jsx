@@ -42,9 +42,9 @@ export default function MedicalRecord() {
     }
   }
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const openModal = () => setIsModalOpen(true)
-  const closeModal = () => setIsModalOpen(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   const handleAddMedicalRecord = (newMedicalRecord) => {
     setMedicalRecords((prev) => [...prev, newMedicalRecord]);
@@ -84,16 +84,16 @@ export default function MedicalRecord() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div
+      className="min-h-screen bg-gray-50 p-6"
+      style={{ height: "calc(100% - 60px)" }}
+    >
       <PageBlurWrapper isBlurred={modalData.isOpen}>
         <div className="max-w-7xl mx-auto">
           {/*Header*/}
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl font-bold">Medical Records</h1>
-            <Button
-              content={"Add Medical Record"}
-              onClick={openModal}  
-            />
+            <Button content={"Add Medical Record"} onClick={openModal} />
           </div>
 
           {/* Medical Records Table */}
@@ -124,24 +124,27 @@ export default function MedicalRecord() {
                       <TableCell className="font-medium">
                         {record.appointment_id}
                       </TableCell>
-                    <TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-2">
-                            <div className="flex-1">
+                          <div className="flex-1">
                             <div className="text-sm" title={record.diagnosis}>
-                                {truncateText(record.diagnosis, 40)}
+                              {truncateText(record.diagnosis, 40)}
                             </div>
-                            </div>
-                            <button
+                          </div>
+                          <button
                             onClick={() =>
-                                openModalColumns("Diagnosis Details", record.diagnosis)
+                              openModalColumns(
+                                "Diagnosis Details",
+                                record.diagnosis
+                              )
                             }
                             className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
                             title="View full diagnosis"
-                            >
+                          >
                             <IoEyeSharp className="w-6 h-6" />
-                            </button>
+                          </button>
                         </div>
-                    </TableCell>
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div className="flex-1">
@@ -175,10 +178,7 @@ export default function MedicalRecord() {
                           </div>
                           <button
                             onClick={() =>
-                              openModalColumns(
-                                "Lab Results",
-                                record.lab_result
-                              )
+                              openModalColumns("Lab Results", record.lab_result)
                             }
                             className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
                             title="View full lab results"
@@ -187,27 +187,27 @@ export default function MedicalRecord() {
                           </button>
                         </div>
                       </TableCell>
-                    <TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-2">
-                            <div className="flex-1">
+                          <div className="flex-1">
                             <div className="text-sm" title={record.treatment}>
-                                {truncateText(record.treatment, 40)}
+                              {truncateText(record.treatment, 40)}
                             </div>
-                            </div>
-                            <button
+                          </div>
+                          <button
                             onClick={() =>
-                                openModalColumns(
+                              openModalColumns(
                                 "Treatment Details",
                                 record.treatment
-                                )
+                              )
                             }
                             className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
                             title="View full treatment"
-                            >
+                          >
                             <IoEyeSharp className="w-6 h-6" />
-                            </button>
+                          </button>
                         </div>
-                    </TableCell>
+                      </TableCell>
 
                       <TableCell>
                         <button
@@ -224,8 +224,9 @@ export default function MedicalRecord() {
             </div>
           </div>
         </div>
-      </PageBlurWrapper>   
+      </PageBlurWrapper>
 
+<<<<<<< HEAD
         <ModalWrapper
               isOpen={isModalOpen}
               onClose={closeModal}
@@ -236,29 +237,44 @@ export default function MedicalRecord() {
             >
               <AddMedicalRecord onClose={closeModal} onAddMedicalRecord={handleAddMedicalRecord} />
         </ModalWrapper>       
+=======
+      <ModalWrapper
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        size="md"
+        showCloseButton={true}
+        closeOnBackdropClick={true}
+        closeOnEscape={true}
+      >
+        <AddMedicalRecord
+          onClose={closeModal}
+          onAddAppointment={handleAddMedicalRecord}
+        />
+      </ModalWrapper>
+>>>>>>> 8560a1e3ff6340d1cda686301acf372e0e6473bf
 
       {/* Modal for viewing full text */}
-        <ModalWrapper
-            isOpen={modalData.isOpen}
-            onClose={closeModalColumns}
-            size="md"
-            showCloseButton={true}
-            closeOnBackdropClick={true}
-            closeOnEscape={true}
+      <ModalWrapper
+        isOpen={modalData.isOpen}
+        onClose={closeModalColumns}
+        size="md"
+        showCloseButton={true}
+        closeOnBackdropClick={true}
+        closeOnEscape={true}
+      >
+        <ModalColumn
+          isOpen={modalData.isOpen}
+          onClose={closeModalColumns}
+          title={modalData.title}
         >
-            <ModalColumn
-                isOpen={modalData.isOpen}
-                onClose={closeModalColumns}
-                title={modalData.title}
-                >
-                <div className="prose max-w-none">
-                    <h2 className="text-xl font-semibold mb-4">{modalData.title}</h2>     
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                        {modalData.content}
-                    </p>
-                </div>
-            </ModalColumn>
-        </ModalWrapper>
+          <div className="prose max-w-none">
+            <h2 className="text-xl font-semibold mb-4">{modalData.title}</h2>
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+              {modalData.content}
+            </p>
+          </div>
+        </ModalColumn>
+      </ModalWrapper>
     </div>
   );
 }
