@@ -10,15 +10,18 @@ import {
 const router = e.Router();
 
 // Router for get all appointments
-router.get("/", getAllAppointments);
+router.get("/api/appointments", getAllAppointments);
 
 // Router for get appointment by id
-router.get("/:id", getAppointmentById);
+router.get("/api/appointments/:id", getAppointmentById);
+
 // Router for create appointment
-router.post("/", createAppointment);
+router.post("/api/appointments", createAppointment);
+
 // Router for update appointment
-router.put("/:id", updateAppointment);
+router.put("/api/appointments/:id", updateAppointment);
+
 // Router for delete appointment
-router.delete("/:id", deleteAppointment);
+router.delete("/api/appointments/:id", deleteAppointment);
 
 export default router;

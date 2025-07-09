@@ -54,8 +54,19 @@ export default (sequelize, DataTypes) => {
       freezeTableName: true,
       underscored: true,
       timestamps: true,
+      createAt: false,
+      updateAt: "last_modified",
     }
   );
-
+  Billing.associate = (models) => {
+    Billing.belongsTo(models.Patient, {
+      foreignKey: "patientId",
+      as: "patient",
+    });
+    Billing.belongsTo(models.Staff, {
+      foreignKey: "staff_id",
+      as: "staff",
+    });
+  };
   return Billing;
 };
