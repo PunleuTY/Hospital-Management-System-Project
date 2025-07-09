@@ -20,6 +20,7 @@ export default (sequelize, DataTypes) => {
       status: {
         type: DataTypes.STRING,
         allowNull: true,
+        defaultValue: "Not Completed", // Default status
       },
       doctorId: {
         type: DataTypes.INTEGER,
@@ -37,10 +38,22 @@ export default (sequelize, DataTypes) => {
       freezeTableName: true,
       underscored: true,
       timestamps: true,
+      createAt: false,
+      updateAt: "last_modified",
     }
   );
 
   // Association
+    Appointment.associate = models => {
+    Appointment.belongsTo(models.Patient, {
+      foreignKey: "patient_id",
+      as: "patient"
+    });
+    Appointment.belongsTo(models.Staff, {
+      foreignKey: "doctor_id",
+      as: "doctor"
+    });
+  };
 
   return Appointment;
 };

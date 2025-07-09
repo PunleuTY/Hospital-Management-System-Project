@@ -1,6 +1,6 @@
 import { React } from 'react';
 import Button from './Common/Button'; 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Input from './Common/Input';
 import PageBlurWrapper from './Common/Blur-wrapper.jsx'
 import ModalWrapper from './Common/Modal-wrapper.jsx';
@@ -9,78 +9,44 @@ import Dropdown from './Common/Dropdown.jsx';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './Common/Table.jsx';
 import AddStaff from './Form/addStaff.jsx';
 
+//API
+import { getAllStaffs } from "../service/staffAPI.js"
+import { deleteStaff as deleteStaffAPI } from "../service/staffAPI.js";
+
 //Icons
 import { TiDelete } from "react-icons/ti";
 
 export default function Staff() {
-  const [staff, setStaff] = useState([
-    {
-      "staff_id": "STF001",
-      "last_name": "Chan",
-      "first_name": "Ratha",
-      "gender": "Male",
-      "role": "Doctor",
-      "contact": "012345678",
-      "specialization": "Cardiology",
-      "department_id": "DPT01",
-      "doctor_id": "DOC1001"
-    },
-    {
-      "staff_id": "STF002",
-      "last_name": "Sok",
-      "first_name": "Sreyneang",
-      "gender": "Female",
-      "role": "Nurse",
-      "contact": "098765432",
-      "specialization": null,
-      "department_id": "DPT02",
-      "doctor_id": null
-    },
-    {
-      "staff_id": "STF003",
-      "last_name": "Kim",
-      "first_name": "Piseth",
-      "gender": "Male",
-      "role": "Surgeon",
-      "contact": "092112233",
-      "specialization": "Neurosurgery",
-      "department_id": "DPT03",
-      "doctor_id": "DOC1002"
-    },
-    {
-      "staff_id": "STF004",
-      "last_name": "Lim",
-      "first_name": "Dara",
-      "gender": "Male",
-      "role": "Receptionist",
-      "contact": "087654321",
-      "specialization": null,
-      "department_id": "DPT01",
-      "doctor_id": null
-    },
-    {
-      "staff_id": "STF005",
-      "last_name": "Men",
-      "first_name": "Kalyan",
-      "gender": "Female",
-      "role": "Doctor",
-      "contact": "093223344",
-      "specialization": "Pediatrics",
-      "department_id": "DPT04",
-      "doctor_id": "DOC1003"
+  const [staff, setStaffs] = useState([]);
+
+  useEffect(() => {
+    fetchAllStaff();
+  }, []);
+
+  const fetchAllStaff = async () => {
+    try{
+      const staffs = await getAllStaffs();
+      setStaffs(staffs);
+    } catch(err){
+      console.error("Failed to fetch staff:", err.message);
     }
-  ]);
+  }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isOpenModal = () => {setIsModalOpen(true);}
   const closeModal = () => {setIsModalOpen(false);} 
 
-  const deleteStaff = (id) => {
-    setStaff((prev) => prev.filter((s) => s.staff_id !== id))
+  const deleteStaff = async (id) => {
+    try {
+      await deleteStaffAPI(id);
+      setStaffs((prev) => prev.filter((s) => s.staff_id !== id));
+    } catch (err) {
+      console.error("Failed to delete staff:", err.message);
+    }
   }
 
   const handleAddStaff = (newStaff) => {
-    setStaff((prev) => [...prev, newStaff]);
+    setStaffs((prev) => [...prev, newStaff]);
   };
 
   return (

@@ -8,15 +8,15 @@ export default (sequelize, DataTypes) => {
         autoIncrement: true,
         field: "patient_id", // maps JS `patientId` → DB `patient_id`
       },
-      firstName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        field: "first_name", // maps `firstName` → `first_name`
-      },
       lastName: {
         type: DataTypes.STRING,
         allowNull: false,
         field: "last_name",
+      },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: "first_name", // maps `firstName` → `first_name`
       },
       height: {
         type: DataTypes.DECIMAL(5, 2),
@@ -57,8 +57,37 @@ export default (sequelize, DataTypes) => {
       freezeTableName: true, // keep the table name as is
       underscored: true, // automatically snake_case JS attributes
       timestamps: true,
+      createAt: " false", // disable createdAt
+      updatedAt: "last_modified", // write into the last_modified column
     }
   );
+  Patient.associate = (models) => {
+    // many-to-many: Patient ↔ Staff through patient_doctor
+    Patient.belongsToMany(models.Staff, {
+      through: "patient_doctor",
+      foreignKey: "patient_id",
+      otherKey: "doctor_id",
+      as: "doctors",
+    });
+
+    // one-to-many: Patient → Appointment
+    Patient.hasMany(models.Appointment, {
+      foreignKey: "patient_id",
+      as: "appointments",
+    });
+
+    // one-to-many: Patient → Medical_record
+    Patient.hasMany(models.Medical_record, {
+      foreignKey: "patient_id",
+      as: "medicalRecords",
+    });
+
+    // one-to-many: Patient → Billing
+    Patient.hasMany(models.Billing, {
+      foreignKey: "patient_id",
+      as: "billings",
+    });
+  };
 
   return Patient;
 };

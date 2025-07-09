@@ -5,7 +5,7 @@ export const listPatients = async ({ limit, offset }) => {
   return Patient.findAndCountAll({
     limit,
     offset,
-    order: [["createdAt", "DESC"]],
+    order: [["patient_id", "ASC"]],
   });
 };
 

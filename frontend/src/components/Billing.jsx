@@ -1,6 +1,6 @@
 import { React } from 'react';
 import Button from './Common/Button'; 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 //import Input from './Common/Input';
 import PageBlurWrapper from './Common/Blur-wrapper.jsx'
 import ModalWrapper from './Common/Modal-wrapper.jsx';
@@ -9,68 +9,27 @@ import Dropdown from './Common/Dropdown.jsx';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './Common/Table.jsx';
 import AddBilling from './Form/addBilling.jsx';
 
+//API
+import { getAllBilling } from "../service/billingAPI.js"
 
 //Icons
 import { TiDelete } from "react-icons/ti";
 
 export default function Billing() {
-    const [bills, setBills] = useState([
-        {
-        id: "B001",
-        receptionist_id: "REC001",
-        patient_id: "PAT001",
-        treatment_fee: 150.0,
-        medication_fee: 50.0,
-        lab_test_fee: 75.0,
-        consultant_fee: 100.0,
-        total_amount: 375.0,
-        status: "paid",
-        },
-        {
-        id: "B002",
-        receptionist_id: "REC002",
-        patient_id: "PAT002",
-        treatment_fee: 200.0,
-        medication_fee: 30.0,
-        lab_test_fee: 0.0,
-        consultant_fee: 120.0,
-        total_amount: 350.0,
-        status: "unpaid",
-        },
-        {
-        id: "B003",
-        receptionist_id: "REC001",
-        patient_id: "PAT003",
-        treatment_fee: 300.0,
-        medication_fee: 80.0,
-        lab_test_fee: 150.0,
-        consultant_fee: 150.0,
-        total_amount: 680.0,
-        status: "paid",
-        },
-        {
-        id: "B004",
-        receptionist_id: "REC003",
-        patient_id: "PAT004",
-        treatment_fee: 100.0,
-        medication_fee: 25.0,
-        lab_test_fee: 50.0,
-        consultant_fee: 80.0,
-        total_amount: 255.0,
-        status: "pending",
-        },
-        {
-        id: "B005",
-        receptionist_id: "REC002",
-        patient_id: "PAT005",
-        treatment_fee: 180.0,
-        medication_fee: 40.0,
-        lab_test_fee: 100.0,
-        consultant_fee: 110.0,
-        total_amount: 430.0,
-        status: "unpaid",
-        },
-    ])
+    const [bills, setBills] = useState([]);
+
+    useEffect(() => {
+        fetchAllBilling();
+    }, []);
+
+    const fetchAllBilling = async() => {
+        try{
+            const billings = await getAllBilling();
+            setBills(billings);
+        } catch(err){
+            console.error("Failed to fetch billing data:", err.message);
+        }
+    }
 
     // Add a new bill
     const handleAddBill = (newBill) => {

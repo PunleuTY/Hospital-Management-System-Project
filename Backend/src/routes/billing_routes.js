@@ -4,19 +4,20 @@ import {
   getAllbills,
   getBillById,
   updateBill,
-} from "../controllers/billing_controllers";
+  deleteBill,
+} from "../controllers/billing_controllers.js";
 
 const router = express.Router();
 
 // Router for get all billings
-router.get("/", getAllbills);
+router.get("/api/bills", getAllbills);
 // Router for get bill by id
-router.get("/:id", getBillById);
+router.get("/api/bills/:id", getBillById);
 // Router for create bill
-router.post("/", createBill);
+router.post("/api/bills", createBill);
 // Router for update bill
-router.put("/:id", updateBill);
+router.put("/api/bills/:id", updateBill);
 // Router for delete bill
-router.delete("/:id", deleteBill);
+router.delete("/api/bills/:id", deleteBill);
 
 export default router;

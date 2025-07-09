@@ -1,19 +1,22 @@
-
 import express from "express";
 import {
   createMedicalRecord,
-  getMedicalRecord,
   updateMedicalRecord,
   deleteMedicalRecord,
+  getMedicalRecordById,
 } from "../controllers/medicalRecord_controller.js";
 const router = express.Router();
 
 // Route to create a new medical record
-router.post("/", createMedicalRecord);
+router.post("/api/medical_records", createMedicalRecord);
+
 // Route to get a medical record by ID
-router.get("/:id", getMedicalRecord);
+router.get("/api/medical_records/:id", getMedicalRecordById);
+
 // Route to update a medical record by ID
-router.put("/:id", updateMedicalRecord);
+router.put("/api/medical_records/:id", updateMedicalRecord);
+
 // Route to delete a medical record by ID
-router.delete("/:id", deleteMedicalRecord);
+router.delete("/api/medical_records/:id", deleteMedicalRecord);
+
 export default router;

@@ -2,13 +2,13 @@ export default (sequelize, DataTypes) => {
   const Department = sequelize.define(
     "Department",
     {
-      depId: {
+      departmentId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         field: "department_id",
       },
-      depName: {
+      departmentName: {
         type: DataTypes.STRING,
         allowNull: false,
         field: "department_name",
@@ -24,7 +24,16 @@ export default (sequelize, DataTypes) => {
       freezeTableName: true,
       underscored: true,
       timestamps: true,
+      createdAt: false,
+      updatedAt: "last_modified",
     }
   );
+  Department.associate = (models) => {
+    // one-to-many: Department → Staff
+    Department.hasMany(models.Staff, {
+      foreignKey: "department_id",
+      as: "staff",
+    });
+  };
   return Department;
 };
