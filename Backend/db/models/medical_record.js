@@ -30,10 +30,10 @@ export default (sequelize, DataTypes) => {
         allowNull: false,
         field: "patient_id",
       },
-      doctorId: {
+      appointmentId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: "doctor_id",
+        field: "appointment_id",
       },
     },
     {
@@ -44,5 +44,15 @@ export default (sequelize, DataTypes) => {
     }
   );
 
+  Medical_record.associate = (models) => {
+    Medical_record.belongsTo(models.Patient, {
+      foreignKey: "patientId",
+      as: "patient",
+    });
+    Medical_record.belongsTo(models.Appointment, {
+      foreignKey: "appointmentId",
+      as: "appointment",
+    });
+  };
   return Medical_record;
 };
