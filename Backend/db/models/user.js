@@ -1,4 +1,4 @@
-import sequelize from "../../config/db_config.js";
+import sequelize from "../config/db_config.js";
 import { DataTypes } from "sequelize";
 
 const User = sequelize.define(
@@ -39,7 +39,7 @@ const User = sequelize.define(
 );
 
 User.associate = (models) => {
-  Role.belongsTo(models.role, {
+  User.belongsTo(models.Role, {
     foreignKey: "role_id",
     as: "role",
   });
