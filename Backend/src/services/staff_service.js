@@ -1,5 +1,6 @@
-import db from "../../db/models/index.js";
-const { Staff } = db;
+import models from "../../db/models/index.js";
+
+const { Staff } = models;
 
 export const listAllStaff = async ({ limit, offset }) =>
   Staff.findAndCountAll({ limit, offset, order: [["staff_id", "ASC"]] });

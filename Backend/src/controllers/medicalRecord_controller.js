@@ -2,6 +2,8 @@ import {
   listMedicalRecords,
   createMedicalRecordSv,
   findMedicalRecordById,
+  updateMedicalRecordSv,
+  deleteMedicalRecordSv,
 } from "../services/medicalRecord_service.js";
 import { success, fail } from "../utils/response.js";
 
@@ -18,6 +20,7 @@ export const getAllMedicalRecords = async (req, res) => {
       meta: { total: count, page, limit, totalPages },
     });
   } catch (err) {
+    console.error("getAllMedicalRecords error:", err);
     return fail(res, err);
   }
 };
@@ -27,6 +30,7 @@ export const getMedicalRecordById = async (req, res) => {
     if (!record) {
       return fail(res, "Medical record not found", 404);
     }
+    return success(res, record);
   } catch (err) {
     return fail(res, err);
   }
