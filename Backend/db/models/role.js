@@ -3,7 +3,7 @@ import sequelize from "../config/db_config.js";
 import { DataTypes } from "sequelize";
 
 const Role = sequelize.define(
-  "Roles",
+  "Role",
   {
     role_id: {
       type: DataTypes.INTEGER,
@@ -28,7 +28,7 @@ const Role = sequelize.define(
 
 // Define associations
 Role.associate = (models) => {
-  Role.hasMany(models.Users, {
+  Role.hasMany(models.User, {
     foreignKey: "role_id",
     as: "users",
   });
