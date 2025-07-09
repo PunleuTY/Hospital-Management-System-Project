@@ -114,7 +114,7 @@ export default function Navigations({ sideBarOpen, setSideBarOpen }) {
     <>
       {sideBarOpen && (
         <div
-          className={`w-[300px] border border-(--color-light-gray) overflow-hidden ${
+          className={`w-[300px] border border-(--color-light-gray) h-full overflow-hidden ${
             width <= 768
               ? "fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50"
               : ""
