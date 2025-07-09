@@ -15,16 +15,10 @@ export const getAllbills = async (req, res) => {
     const totalPages = Math.ceil(count / limit);
     return success(res, {
       data: rows,
-<<<<<<< HEAD
-      meta: { tatal: count, page, limit, totalPages },
-    });
-  } catch (err) {
-=======
       meta: { total: count, page, limit, totalPages },
     });
   } catch (err) {
     console.error("getAllbills error:", err);
->>>>>>> 8560a1e3ff6340d1cda686301acf372e0e6473bf
     return fail(res, err);
   }
 };
