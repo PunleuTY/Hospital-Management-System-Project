@@ -1,4 +1,4 @@
-import { useState,useMemo } from "react";
+import { useState,useMemo,useEffect } from "react";
 import Button from "./Common/Button";
 import Input from "./Common/Input";
 import SearchBar from "./Common/SearchBar";
@@ -17,79 +17,25 @@ import {
 import AddPatient from "./Form/addPatient.jsx"
 import { TiDelete } from "react-icons/ti";
 
+//API
+import { getAllPatients } from "../service/patientAPI.js";
+import { updatePatient } from "../service/patientAPI";
+
 export default function Patient() {
-  const [patients, setPatients] = useState([
-    {
-      patient_id: "P001",
-      last_name: "Smith",
-      first_name: "John",
-      height: 1.75,
-      weight: 78.5,
-      date_of_birth: "1979-03-15",
-      address: "123 Main Street, Springfield, IL 62701",
-      contact: "+1 (555) 123-4567",
-      email: "john.smith@email.com",
-      doctor_id: "Dr. Sarah Johnson - Cardiology",
-      status: "active",
-      last_visit: "2024-01-15",
-    },
-    {
-      patient_id: "P002",
-      last_name: "Wilson",
-      first_name: "Sarah",
-      height: 1.62,
-      weight: 65.0,
-      date_of_birth: "1992-07-22",
-      address: "456 Oak Avenue, Chicago, IL 60601",
-      contact: "+1 (555) 234-5678",
-      email: "sarah.wilson@email.com",
-      doctor_id: "Dr. Michael Brown - Family Medicine",
-      status: "active",
-      last_visit: "2024-01-14",
-    },
-    {
-      patient_id: "P003",
-      last_name: "Davis",
-      first_name: "Mike",
-      height: 1.8,
-      weight: 85.2,
-      date_of_birth: "1966-11-08",
-      address: "789 Pine Road, Milwaukee, WI 53202",
-      contact: "+1 (555) 345-6789",
-      email: "mike.davis@email.com",
-      doctor_id: "Dr. Emily Lee - Endocrinology",
-      status: "inactive",
-      last_visit: "2024-01-10",
-    },
-    {
-      patient_id: "P004",
-      last_name: "Taylor",
-      first_name: "Emma",
-      height: 1.68,
-      weight: 58.7,
-      date_of_birth: "1996-05-30",
-      address: "321 Elm Street, Detroit, MI 48201",
-      contact: "+1 (555) 456-7890",
-      email: "emma.taylor@email.com",
-      doctor_id: "Dr. Robert Wilson - Pulmonology",
-      status: "active",
-      last_visit: "2024-01-16",
-    },
-    {
-      patient_id: "P005",
-      last_name: "Johnson",
-      first_name: "Mark",
-      height: 1.77,
-      weight: 72.3,
-      date_of_birth: "1987-09-12",
-      address: "654 Maple Drive, Phoenix, AZ 85001",
-      contact: "+1 (555) 567-8901",
-      email: "mark.johnson@email.com",
-      doctor_id: "Dr. Lisa Anderson - Dermatology",
-      status: "active",
-      last_visit: "2024-01-12",
+  const [patients, setPatients] = useState([]);
+
+  useEffect(() => {
+    fetchAllPatient();
+  }, []);
+
+  const fetchAllPatient = async() => {
+    try{
+      const patients = await getAllPatients();
+      setPatients(patients);
+    } catch(err){
+      console.error("Failed to fetch patients:", err.message);
     }
-  ]);
+  }
 
   const [filterStatus, setFilterStatus] = useState("All");
 
@@ -102,7 +48,6 @@ export default function Patient() {
   };
 
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("")
 
   const handleDeletePatient = (patientId) => {
     setPatients((prev) => prev.filter((patient) => patient.patient_id !== patientId))
@@ -123,15 +68,15 @@ export default function Patient() {
   }, [patients, searchTerm, filterStatus]);
 
   // Change status handler
-  const handleStatusChange = (id, newStatus) => {
-    setPatients((prev) =>
-      prev.map((a) =>
-        a.id === id ? { ...a, status: newStatus } : a
-      )
-    );
-
-    //Change using frontend can write logic here
-    //-> Code <-
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await updatePatient(id, { status: newStatus }); 
+      setPatients((prev) =>
+        prev.map((a) => (a.patient_id === id ? { ...a, status: newStatus } : a))
+      );
+    } catch (err) {
+      console.error("Failed to update patient status:", err.message);
+    }
   };
 
   return (

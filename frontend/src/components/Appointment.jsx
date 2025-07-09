@@ -15,43 +15,27 @@ import {
 } from "./Common/Table.jsx";
 import { TiDelete } from "react-icons/ti";
 
+import { getAllAppointment } from "../service/appointmentAPI.js";
+import { deleteAppointment as deleteAppointmentAPI } from "../service/appointmentAPI.js";
+
 export default function Appointment() {
   const [filterDate, setFilterDate] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
-  const [appointments, setAppointments] = useState([
-    {
-      id: "A001",
-      patient: "PAT001",
-      doctor: "DOC001",
-      date: "2024-01-16",
-      time: "09:00",
-      status: "Confirmed",
-    },
-    {
-      id: "A002",
-      patient: "PAT002",
-      doctor: "DOC002",
-      date: "2024-01-16",
-      time: "10:30",
-      status: "Pending",
-    },
-    {
-      id: "A003",
-      patient: "PAT003",
-      doctor: "DOC003",
-      date: "2024-01-17",
-      time: "14:00",
-      status: "Confirmed",
-    },
-    {
-      id: "A004",
-      patient: "PAT004",
-      doctor: "DOC004",
-      date: "2024-01-17",
-      time: "15:30",
-      status: "Cancelled",
-    },
-  ]);
+
+  const [appointments, setAppointments] = useState([]);
+
+  useEffect(() => {
+    fetchAllAppointment();
+  }, []);
+
+  const fetchAllAppointment = async () => {
+    try {
+      const appointments = await getAllAppointment();
+      setAppointments(appointments);
+    } catch (err) {
+      console.error("Failed to fetch appointments:", err.message);
+    }
+  };
 
   // Add appointment handler
   const handleAddAppointment = (newAppointment) => {
@@ -75,8 +59,13 @@ export default function Appointment() {
     return matchesDate && matchesStatus;
   });
 
-  const deleteAppointment = (id) => {
-    setAppointments((prev) => prev.filter((a) => a.id !== id));
+  const deleteAppointment = async (id) => {
+    try {
+      await deleteAppointmentAPI(id); // call backend
+      setAppointments((prev) => prev.filter((a) => a.id !== id)); // update state
+    } catch (err) {
+      console.error("Failed to delete appointment:", err.message);
+    }
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
