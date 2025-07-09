@@ -12,6 +12,8 @@ import "../db/models/patient.js";
 import "../db/models/billing.js";
 import "../db/models/medical_record.js";
 import "../db/models/appointment.js";
+import "../db/models/user.js";
+import "../db/models/role.js";
 
 // Mounting Routes
 import patientRoutes from "./routes/patient_routes.js";
