@@ -143,7 +143,7 @@ export default function ModalWrapper({
                     className="absolute right-4 top-4 z-10 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                     aria-label="Close modal"
                     >
-                    <RxCrossCircled className="w-8 h-8 text-gray-500" />
+                      <RxCrossCircled className="w-8 h-8 text-gray-500" />
                     </button>
                 )}
 

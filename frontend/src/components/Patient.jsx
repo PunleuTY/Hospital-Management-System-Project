@@ -1,353 +1,233 @@
-import React, { useState, useEffect } from "react";
+import { useState,useMemo } from "react";
+import Button from "./Common/Button";
+import Input from "./Common/Input";
+import SearchBar from "./Common/SearchBar";
+
+import PageBlurWrapper from "./Common/Blur-wrapper.jsx";
+import ModalWrapper from "./Common/Modal-wrapper.jsx";
+import Dropdown from "./Common/Dropdown.jsx";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "./Common/Table.jsx";
+import AddPatient from "./Form/addPatient.jsx"
+import { TiDelete } from "react-icons/ti";
 
 export default function Patient() {
-  const initialState = {
-    patient_id: "",
-    last_name: "",
-    first_name: "",
-    gender: "",
-    height: "",
-    weight: "",
-    date_of_birth: "",
-    address: "",
-    contact: "",
-    email: "",
-    doctor_id: "",
-  };
-
-  const [patients, setPatients] = useState([]);
-  const [patientHistory, setPatientHistory] = useState([]);
-  const [formData, setFormData] = useState(initialState);
-  const [editing, setEditing] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeSearch, setActiveSearch] = useState("");
-  const [emailError, setEmailError] = useState("");
-
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("patients")) || [];
-    setPatients(stored);
-
-    const history = JSON.parse(localStorage.getItem("patientHistory")) || [];
-    setPatientHistory(history);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("patients", JSON.stringify(patients));
-  }, [patients]);
-
-  useEffect(() => {
-    localStorage.setItem("patientHistory", JSON.stringify(patientHistory));
-  }, [patientHistory]);
-
-  const validateEmail = (email) => {
-    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return pattern.test(email);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "email") {
-      setEmailError(validateEmail(value) ? "" : "Invalid email format");
+  const [patients, setPatients] = useState([
+    {
+      patient_id: "P001",
+      last_name: "Smith",
+      first_name: "John",
+      height: 1.75,
+      weight: 78.5,
+      date_of_birth: "1979-03-15",
+      address: "123 Main Street, Springfield, IL 62701",
+      contact: "+1 (555) 123-4567",
+      email: "john.smith@email.com",
+      doctor_id: "Dr. Sarah Johnson - Cardiology",
+      status: "active",
+      last_visit: "2024-01-15",
+    },
+    {
+      patient_id: "P002",
+      last_name: "Wilson",
+      first_name: "Sarah",
+      height: 1.62,
+      weight: 65.0,
+      date_of_birth: "1992-07-22",
+      address: "456 Oak Avenue, Chicago, IL 60601",
+      contact: "+1 (555) 234-5678",
+      email: "sarah.wilson@email.com",
+      doctor_id: "Dr. Michael Brown - Family Medicine",
+      status: "active",
+      last_visit: "2024-01-14",
+    },
+    {
+      patient_id: "P003",
+      last_name: "Davis",
+      first_name: "Mike",
+      height: 1.8,
+      weight: 85.2,
+      date_of_birth: "1966-11-08",
+      address: "789 Pine Road, Milwaukee, WI 53202",
+      contact: "+1 (555) 345-6789",
+      email: "mike.davis@email.com",
+      doctor_id: "Dr. Emily Lee - Endocrinology",
+      status: "inactive",
+      last_visit: "2024-01-10",
+    },
+    {
+      patient_id: "P004",
+      last_name: "Taylor",
+      first_name: "Emma",
+      height: 1.68,
+      weight: 58.7,
+      date_of_birth: "1996-05-30",
+      address: "321 Elm Street, Detroit, MI 48201",
+      contact: "+1 (555) 456-7890",
+      email: "emma.taylor@email.com",
+      doctor_id: "Dr. Robert Wilson - Pulmonology",
+      status: "active",
+      last_visit: "2024-01-16",
+    },
+    {
+      patient_id: "P005",
+      last_name: "Johnson",
+      first_name: "Mark",
+      height: 1.77,
+      weight: 72.3,
+      date_of_birth: "1987-09-12",
+      address: "654 Maple Drive, Phoenix, AZ 85001",
+      contact: "+1 (555) 567-8901",
+      email: "mark.johnson@email.com",
+      doctor_id: "Dr. Lisa Anderson - Dermatology",
+      status: "active",
+      last_visit: "2024-01-12",
     }
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  ]);
+
+  const [filterStatus, setFilterStatus] = useState("All");
+
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const openModal = () => setIsModalOpen(true)
+  const closeModal = () => setIsModalOpen(false)
+
+  const handleAddPatient = (newPatient) => {
+    setPatients((prev) => [...prev, newPatient]);
   };
 
-  const generatePatientId = () => {
-    const existingIds = patients.map((p) => p.patient_id);
-    let maxNumber = 0;
+  const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState("")
 
-    existingIds.forEach((id) => {
-      const number = parseInt(id.replace("P", ""), 10);
-      if (!isNaN(number) && number > maxNumber) {
-        maxNumber = number;
-      }
+  const handleDeletePatient = (patientId) => {
+    setPatients((prev) => prev.filter((patient) => patient.patient_id !== patientId))
+  }
+
+  const filteredPatients = useMemo(() => {
+    return patients.filter((patient) => {
+      const fullName = `${patient.first_name} ${patient.last_name}`.toLowerCase();
+      const matchesSearch = fullName.includes(searchTerm.toLowerCase());
+      // If filterStatus is "All status", show all, else match status (case-insensitive)
+      const matchesStatus =
+        filterStatus === "All status" ||
+        filterStatus === "All" ||
+        filterStatus === "" ||
+        patient.status.toLowerCase() === filterStatus.toLowerCase();
+        return matchesSearch && matchesStatus;
     });
+  }, [patients, searchTerm, filterStatus]);
 
-    const nextNumber = maxNumber + 1;
-    return `P${String(nextNumber).padStart(3, "0")}`;
+  // Change status handler
+  const handleStatusChange = (id, newStatus) => {
+    setPatients((prev) =>
+      prev.map((a) =>
+        a.id === id ? { ...a, status: newStatus } : a
+      )
+    );
+
+    //Change using frontend can write logic here
+    //-> Code <-
   };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validateEmail(formData.email)) {
-      setEmailError("Invalid email format");
-      return;
-    }
-
-    if (editing) {
-      setPatients((prev) =>
-        prev.map((p) => (p.patient_id === formData.patient_id ? formData : p))
-      );
-    } else {
-      const newPatient = {
-        ...formData,
-        patient_id: generatePatientId(),
-      };
-      setPatients((prev) => [...prev, newPatient]);
-      setPatientHistory((prev) => [...prev, newPatient]);
-    }
-
-    setFormData(initialState);
-    setEditing(false);
-    setShowForm(false);
-  };
-
-  const handleEdit = (patient) => {
-    setFormData(patient);
-    setEditing(true);
-    setShowForm(true);
-    setEmailError("");
-  };
-
-  const handleDelete = (id) => {
-    setPatients((prev) => prev.filter((p) => p.patient_id !== id));
-    if (formData.patient_id === id) {
-      setFormData(initialState);
-      setEditing(false);
-    }
-  };
-
-  const handleView = (patient) => {
-    alert(JSON.stringify(patient, null, 2));
-  };
-
-  const handleCancel = () => {
-    setFormData(initialState);
-    setEditing(false);
-    setShowForm(false);
-    setEmailError("");
-  };
-
-  const handleSearch = () => {
-    setActiveSearch(searchTerm);
-  };
-
-  const filteredPatients = patients.filter((p) =>
-    Object.values(p)
-      .join(" ")
-      .toLowerCase()
-      .includes(activeSearch.toLowerCase())
-  );
 
   return (
-    <div className="p-4 relative">
-      <h1 className="text-xl font-bold mb-4">Patient Management</h1>
-
-      {/* Top Button Row */}
-      <div className="flex justify-between mb-4">
-        <div className="flex w-full gap-2">
-          <input
-            type="text"
-            placeholder="Search by name, email, ID..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="p-2 border border-gray-300 rounded w-full"
-          />
-          <button
-            onClick={handleSearch}
-            className="px-4 py-2 bg-gray-600 text-white rounded"
-          >
-            Search
-          </button>
-        </div>
-        <div className="flex gap-2 ml-4">
-          <button
-            onClick={() => setShowHistory(true)}
-            className="px-4 py-2 bg-purple-600 text-white rounded"
-          >
-            History
-          </button>
-          <button
-            onClick={() => {
-              setFormData(initialState);
-              setEditing(false);
-              setShowForm(true);
-              setEmailError("");
-            }}
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-          >
-            Add Patient
-          </button>
-        </div>
-      </div>
-
-      {/* Add/Edit Patient Modal */}
-      {showForm && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-10">
-          <div className="bg-white p-6 rounded shadow-md w-[90%] max-w-3xl">
-            <h2 className="text-lg font-semibold mb-4">
-              {editing ? "Edit Patient" : "Add Patient"}
-            </h2>
-            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-              {Object.keys(initialState)
-                .filter((key) => key !== "patient_id")
-                .map((key) => (
-                  <div key={key}>
-                    <label className="block text-sm font-medium mb-1">
-                      {key.replace(/_/g, " ")}
-                    </label>
-                    {key === "gender" ? (
-                      <select
-                        className="w-full p-2 border border-gray-300 rounded"
-                        name={key}
-                        value={formData[key]}
-                        onChange={handleChange}
-                        required
-                      >
-                        <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                      </select>
-                    ) : (
-                      <input
-                        className="w-full p-2 border border-gray-300 rounded"
-                        type={key === "date_of_birth" ? "date" : "text"}
-                        name={key}
-                        value={formData[key]}
-                        onChange={handleChange}
-                        required
-                      />
-                    )}
-                    {key === "email" && emailError && (
-                      <p className="text-red-600 text-sm">{emailError}</p>
-                    )}
-                  </div>
-                ))}
-              <div className="col-span-2 flex justify-end gap-2 mt-4">
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded"
-                  disabled={emailError !== ""}
-                >
-                  {editing ? "Update" : "Add"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="px-4 py-2 bg-gray-500 text-white rounded"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <PageBlurWrapper>
+        <div className="max-w-6xl mx-auto">
+          {/*Header*/}
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold">Patient</h1>
+            <Button content={"Add Patient"} onClick={openModal} />
           </div>
-        </div>
-      )}
 
-      {/* History Modal */}
-      {showHistory && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-20">
-          <div className="bg-white p-6 rounded shadow-md w-[90%] max-w-4xl max-h-[90vh] overflow-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Patient History</h2>
-              <button
-                onClick={() => setShowHistory(false)}
-                className="text-red-600 hover:underline"
-              >
-                Close
-              </button>
+          {/*Search and Filter*/}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <SearchBar
+                placeholder="Search patients..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-            <table className="w-full table-auto border-collapse border border-gray-300 text-sm">
-              <thead className="bg-gray-100">
-                <tr>
-                  {Object.keys(initialState).map((key) => (
-                    <th key={key} className="border p-2 capitalize">
-                      {key.replace(/_/g, " ")}
-                    </th>
+            <div className='relative z-11'>
+              <Dropdown
+                options={["All status", "Active", "Inactive"]}
+                defaultLabel='Filter by Status'
+                value={filterStatus}
+                onSelect={(option) => setFilterStatus(option)}
+              />
+            </div>
+          </div>
+
+          {/*Table*/}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">Patient ID</TableHead>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">Last Name</TableHead>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">First Name</TableHead>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">Height (m)</TableHead>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">Weight (kg)</TableHead>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">Date of Birth</TableHead>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">Address</TableHead>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">Contact</TableHead>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">Email</TableHead>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">Doctor</TableHead>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">Status</TableHead>
+                    <TableHead className="sticky top-0 bg-gray-200 z-10">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredPatients.map((patient) => (
+                    <TableRow key={patient.patient_id}>
+                      <TableCell className="font-medium">{patient.patient_id}</TableCell>
+                      <TableCell className="font-medium">{patient.last_name}</TableCell>
+                      <TableCell className="font-medium">{patient.first_name}</TableCell>
+                      <TableCell className="font-medium">{patient.height}m</TableCell>
+                      <TableCell className="font-medium">{patient.weight}kg</TableCell>
+                      <TableCell className="font-medium">{patient.date_of_birth}</TableCell>
+                      <TableCell className="font-medium">{patient.address}</TableCell>        
+                      <TableCell className="font-medium">{patient.contact}</TableCell>
+                      <TableCell className="font-medium">{patient.email}</TableCell>
+                      <TableCell className="font-medium">{patient.doctor_id}</TableCell>
+                      <TableCell>
+                        <Dropdown
+                          options={["Active", "Inactive"]}
+                          value={patient.status}
+                          onSelect={(value) => handleStatusChange(patient.patient_id, value)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <button onClick={() => handleDeletePatient(patient.patient_id)} className='text-red-500 hover:text-red-700'>
+                          <TiDelete className='w-8 h-8' />
+                        </button>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {patientHistory.length === 0 ? (
-                  <tr>
-                    <td colSpan="12" className="text-center p-4">
-                      No history found.
-                    </td>
-                  </tr>
-                ) : (
-                  patientHistory.map((p, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50">
-                      {Object.keys(initialState).map((key) => (
-                        <td key={key} className="border p-2">
-                          {p[key]}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </div>
-      )}
+      </PageBlurWrapper>
 
-      {/* Patients Table */}
-      <table className="w-full table-auto border-collapse border border-gray-300 text-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border p-2">Patient ID</th>
-            <th className="border p-2">Last Name</th>
-            <th className="border p-2">First Name</th>
-            <th className="border p-2">Gender</th>
-            <th className="border p-2">Height (Cm)</th>
-            <th className="border p-2">Weight (Kg)</th>
-            <th className="border p-2">Date of Birth</th>
-            <th className="border p-2">Address</th>
-            <th className="border p-2">Contact</th>
-            <th className="border p-2">Email</th>
-            <th className="border p-2">Doctor ID</th>
-            <th className="border p-2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredPatients.map((patient) => (
-            <tr key={patient.patient_id} className="hover:bg-gray-50 group">
-              <td className="border p-2">{patient.patient_id}</td>
-              <td className="border p-2">{patient.last_name}</td>
-              <td className="border p-2">{patient.first_name}</td>
-              <td className="border p-2">{patient.gender}</td>
-              <td className="border p-2">{patient.height}</td>
-              <td className="border p-2">{patient.weight}</td>
-              <td className="border p-2">{patient.date_of_birth}</td>
-              <td className="border p-2">{patient.address}</td>
-              <td className="border p-2">{patient.contact}</td>
-              <td className="border p-2">{patient.email}</td>
-              <td className="border p-2">{patient.doctor_id}</td>
-              <td className="border p-2 text-center">
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity space-x-2">
-                  <button
-                    className="text-blue-600 hover:underline"
-                    onClick={() => handleView(patient)}
-                  >
-                    View
-                  </button>
-                  <button
-                    className="text-green-600 hover:underline"
-                    onClick={() => handleEdit(patient)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-600 hover:underline"
-                    onClick={() => handleDelete(patient.patient_id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-          {filteredPatients.length === 0 && (
-            <tr>
-              <td colSpan="12" className="text-center p-4">
-                No patients found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <ModalWrapper
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        size="md"
+        showCloseButton={true}
+        closeOnBackdropClick={true}
+        closeOnEscape={true}
+      >
+        <AddPatient onClose={closeModal} onAddPatient={handleAddPatient} />
+      </ModalWrapper>
+
     </div>
   );
 }

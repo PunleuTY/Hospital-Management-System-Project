@@ -13,7 +13,7 @@ import { FaRegUser } from "react-icons/fa";
 import { GiBodyHeight } from "react-icons/gi";
 import { IoIosMailUnread } from "react-icons/io";
 
-export default function AddPatient() {
+export default function AddPatient({ onClose, onAddPatient }) {
     const [formData, setFormData] = useState({
         first_name: "",
         last_name: "",
