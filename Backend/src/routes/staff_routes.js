@@ -22,6 +22,6 @@ router.post("/api/staff", createStaff);
 router.put("/api/staff/:id", updateStaff);
 
 // Router for delete staff member
-router.delete("api/staff/:id", deleteStaff);
+router.delete("/api/staff/:id", deleteStaff);
 
 export default router;

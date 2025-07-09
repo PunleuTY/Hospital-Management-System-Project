@@ -1,8 +1,8 @@
 import db from "../../db/models/index.js";
 const { Appointment } = db;
 
-export const listAllAppointments = async () => {
-  Appointment.findAndCountAll({
+export const listAllAppointments = async ({ limit, offset }) => {
+  return Appointment.findAndCountAll({
     limit,
     offset,
     order: [["appointment_id", "ASC"]],

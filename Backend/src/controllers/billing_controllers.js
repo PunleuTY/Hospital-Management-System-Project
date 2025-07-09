@@ -15,9 +15,10 @@ export const getAllbills = async (req, res) => {
     const totalPages = Math.ceil(count / limit);
     return success(res, {
       data: rows,
-      meta: { tatal: count, page, limit, totalPages },
+      meta: { total: count, page, limit, totalPages },
     });
   } catch (err) {
+    console.error("getAllbills error:", err);
     return fail(res, err);
   }
 };
@@ -29,6 +30,7 @@ export const getBillById = async (req, res) => {
         .status(404)
         .json({ status: " error", message: "Bill not found" });
     }
+    return success(res, billing);
   } catch (err) {
     return fail(res, err);
   }

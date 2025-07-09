@@ -1,11 +1,12 @@
-import db from "../../db/models/index.js";
-const { Patient } = db;
+import models from "../../db/models/index.js";
+
+const { Patient } = models;
 
 export const listPatients = async ({ limit, offset }) => {
   return Patient.findAndCountAll({
     limit,
     offset,
-    order: [["patient_id", "ASC"]],
+    order: [["patientId", "ASC"]],
   });
 };
 
@@ -17,9 +18,9 @@ export const createPatientSv = async (patientData) => {
 };
 
 export const updatePatientSv = async (id, patientData) => {
-  return Patient.update(patientData, { where: { id } });
+  return Patient.update(patientData, { where: { patientId: id } });
 };
 
 export const deletePatientSv = async (id) => {
-  return Patient.destroy({ where: { id } });
+  return Patient.destroy({ where: { patientId: id } });
 };

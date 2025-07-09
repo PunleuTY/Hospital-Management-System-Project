@@ -1,5 +1,6 @@
-import db from "../../db/models/index.js";
-const { Department } = db;
+import models from "../../db/models/index.js";
+
+const { Department } = models;
 
 export const listDepartments = async ({ limit, offset }) =>
   Department.findAndCountAll({
