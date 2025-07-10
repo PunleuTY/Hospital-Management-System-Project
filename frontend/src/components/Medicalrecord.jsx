@@ -226,7 +226,7 @@ export default function MedicalRecord() {
         </div>
       </PageBlurWrapper>
 
-<<<<<<< HEAD
+
         <ModalWrapper
               isOpen={isModalOpen}
               onClose={closeModal}
@@ -237,7 +237,7 @@ export default function MedicalRecord() {
             >
               <AddMedicalRecord onClose={closeModal} onAddMedicalRecord={handleAddMedicalRecord} />
         </ModalWrapper>       
-=======
+
       <ModalWrapper
         isOpen={isModalOpen}
         onClose={closeModal}
@@ -251,7 +251,7 @@ export default function MedicalRecord() {
           onAddAppointment={handleAddMedicalRecord}
         />
       </ModalWrapper>
->>>>>>> 8560a1e3ff6340d1cda686301acf372e0e6473bf
+
 
       {/* Modal for viewing full text */}
       <ModalWrapper

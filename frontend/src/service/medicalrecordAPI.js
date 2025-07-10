@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api/medical_records";
+const API_URL = "http://localhost:3000/api/medical_records";
 
 // get all medical records (MedicalRecords.jsx)
 export const getAllMedicalRecords = async () => {

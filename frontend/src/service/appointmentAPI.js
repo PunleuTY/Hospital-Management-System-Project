@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api/appointments";
+const API_URL = "http://localhost:3000/api/appointments";
 
 // get all appointments (Appointment.jsx)
 export const getAllAppointment = async () => {

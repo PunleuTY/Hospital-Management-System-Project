@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "./Common/Button";
 import Input from "./Common/Input";
 import AddAppointment from "./Form/addAppointment.jsx";
@@ -34,7 +34,7 @@ export default function Appointment() {
       setAppointments(appointments);
     } catch (err) {
       console.error("Failed to fetch appointments:", err.message);
-    }
+    };
   };
 
   // Add appointment handler

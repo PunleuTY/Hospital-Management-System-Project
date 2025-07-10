@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api/staffs";
+const API_URL = "http://localhost:3000/api/staffs";
 
 // get all staffs (Staff.jsx)
 export const getAllStaffs = async () => {
