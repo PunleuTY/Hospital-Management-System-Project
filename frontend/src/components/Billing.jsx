@@ -174,7 +174,7 @@ export default function Billing() {
           </div>
 
           {/* Summary Cards */}
-          {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 flex-shrink-0">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 flex-shrink-0">
             <StatisticCard
               title="Total Income"
               value={`$${totalIncome.toFixed(2)}`}
@@ -193,7 +193,7 @@ export default function Billing() {
               subtitle="All bills"
               valueColor="text-blue-600"
             />
-          </div> */}
+          </div>
 
           {/*Table Container with Fixed Height*/}
           <div className="bg-white rounded-lg shadow flex-1 flex flex-col min-h-0">
