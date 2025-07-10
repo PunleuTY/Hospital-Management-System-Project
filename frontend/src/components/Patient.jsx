@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Button from "./Common/Button";
-import Input from "./Common/Input";
 import Pagination from "./Common/Pagination.jsx";
 import PageBlurWrapper from "./Common/Blur-wrapper.jsx";
 import ModalWrapper from "./Common/Modal-wrapper.jsx";
-import Dropdown from "./Common/Dropdown.jsx";
 import { getUserRole } from "../utils/auth.js";
 import { success, error } from "../components/utils/toast.js";
 import {
@@ -17,7 +15,6 @@ import {
 } from "./Common/Table.jsx";
 import AddPatient from "./Form/addPatient.jsx";
 import { TiDelete } from "react-icons/ti";
-import SearchBar from "./Common/SearchBar.jsx";
 
 //API
 import { getAllPatients, deletePatient } from "../service/patientAPI.js";
@@ -66,23 +63,6 @@ export default function Patient() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const filteredPatients = useMemo(() => {
-    return patients.filter((patient) => {
-      const fullName =
-        `${patient.first_name} ${patient.last_name}`.toLowerCase();
-      const matchesSearch = fullName.includes(searchTerm.toLowerCase());
-      // If filterStatus is "All status", show all, else match status (case-insensitive)
-      const matchesStatus =
-        filterStatus === "All status" ||
-        filterStatus === "All" ||
-        filterStatus === "" ||
-        patient.status.toLowerCase() === filterStatus.toLowerCase();
-      return matchesSearch && matchesStatus;
-    });
-  }, [patients, searchTerm, filterStatus]);
 
   const handleAddPatient = (newPatient) => {
     setPatients((prev) => [...prev, newPatient]);
@@ -142,25 +122,6 @@ export default function Patient() {
             {userRole && userRole !== "doctor" && (
               <Button content={"Add Patient"} onClick={openModal} />
             )}
-          </div>
-
-          {/*Search and Filter*/}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6 flex-shrink-0">
-            <div className="flex-1">
-              <SearchBar
-                placeholder="Search patients..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="relative z-11">
-              <Dropdown
-                options={["All status", "Active", "Inactive"]}
-                defaultLabel="Filter by Status"
-                value={filterStatus}
-                onSelect={(option) => setFilterStatus(option)}
-              />
-            </div>
           </div>
 
           {/*Table Container with Fixed Height*/}

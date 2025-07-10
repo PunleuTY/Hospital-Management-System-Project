@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import Pagination from "./Common/Pagination.jsx";
 import PageBlurWrapper from "./Common/Blur-wrapper.jsx";
 import ModalWrapper from "./Common/Modal-wrapper.jsx";
-import StatisticCard from "./Common/statisticCard.jsx";
 import Dropdown from "./Common/Dropdown.jsx";
 import {
   Table,
@@ -115,54 +114,6 @@ export default function Billing() {
     );
   };
 
-  // Calculate summary statistics
-  console.log("All bills for calculation:", bills); // Debug log
-
-  const totalIncome = bills
-    .filter((bill) => {
-      const status =
-        bill.payment_status || bill.paymentStatus || bill.status || "pending";
-      console.log("Bill status for income:", status, bill); // Debug log
-      return status === "paid";
-    })
-    .reduce((sum, bill) => {
-      const amount = bill.total_amount || bill.totalAmount || 0;
-      console.log("Adding to income:", amount, typeof amount); // Debug log
-      return sum + (parseFloat(amount) || 0);
-    }, 0);
-
-  const pendingAmount = bills
-    .filter((bill) => {
-      const status =
-        bill.payment_status || bill.paymentStatus || bill.status || "pending";
-      console.log("Bill status for pending:", status, bill); // Debug log
-      return (
-        status === "pending" || status === "unpaid" || status === "outstanding"
-      );
-    })
-    .reduce((sum, bill) => {
-      const amount = bill.total_amount || bill.totalAmount || 0;
-      console.log("Adding to pending:", amount, typeof amount); // Debug log
-      return sum + (parseFloat(amount) || 0);
-    }, 0);
-
-  const pendingCount = bills.filter((bill) => {
-    const status =
-      bill.payment_status || bill.paymentStatus || bill.status || "pending";
-    return (
-      status === "pending" || status === "unpaid" || status === "outstanding"
-    );
-  }).length;
-
-  const totalBills = bills.length;
-
-  console.log("Calculated stats:", {
-    totalIncome,
-    pendingAmount,
-    pendingCount,
-    totalBills,
-  }); // Debug log
-
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       <PageBlurWrapper isBlurred={isModalOpen}>
@@ -171,28 +122,6 @@ export default function Billing() {
           <div className="flex items-center justify-between mb-6 flex-shrink-0">
             <h1 className="text-3xl font-bold">Billings</h1>
             <Button content="Create Bill" onClick={openModal} />
-          </div>
-
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 flex-shrink-0">
-            <StatisticCard
-              title="Total Income"
-              value={`$${totalIncome.toFixed(2)}`}
-              subtitle="From paid bills"
-              valueColor="text-green-600"
-            />
-            <StatisticCard
-              title="Pending Bills"
-              value={`$${pendingAmount.toFixed(2)}`}
-              subtitle={`${pendingCount} bills not finished yet`}
-              valueColor="text-orange-600"
-            />
-            <StatisticCard
-              title="Total Bills"
-              value={totalBills}
-              subtitle="All bills"
-              valueColor="text-blue-600"
-            />
           </div>
 
           {/*Table Container with Fixed Height*/}
