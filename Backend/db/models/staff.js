@@ -62,6 +62,7 @@ Staff.associate = (models) => {
     foreignKey: "department_id",
     as: "department",
   });
+  // Self-referencing relationship for supervisor
   Staff.belongsTo(models.Staff, {
     foreignKey: "doctor_id",
     as: "supervisor",
@@ -70,14 +71,15 @@ Staff.associate = (models) => {
     foreignKey: "doctor_id",
     as: "team",
   });
+  // Use through table name instead of model reference
   Staff.belongsToMany(models.Patient, {
-    through: models.Appointment,
-    foreignKey: "staff_id",
+    through: "patient_doctor",
+    foreignKey: "doctor_id",
     otherKey: "patient_id",
     as: "patients",
   });
   Staff.hasMany(models.Appointment, {
-    foreignKey: "staff_id",
+    foreignKey: "doctor_id", // Changed from staff_id to doctor_id for clarity
     as: "appointments",
   });
   Staff.hasMany(models.Billing, {

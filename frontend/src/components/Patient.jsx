@@ -1,11 +1,12 @@
-import { useState,useMemo,useEffect } from "react";
+import { useState, useEffect } from "react";
 import Button from "./Common/Button";
 import Input from "./Common/Input";
-import SearchBar from "./Common/SearchBar";
-
+import Pagination from "./Common/Pagination.jsx";
 import PageBlurWrapper from "./Common/Blur-wrapper.jsx";
 import ModalWrapper from "./Common/Modal-wrapper.jsx";
 import Dropdown from "./Common/Dropdown.jsx";
+import { getUserRole } from "../utils/auth.js";
+import { success, error } from "../components/utils/toast.js";
 import {
   Table,
   TableHeader,
@@ -14,83 +15,119 @@ import {
   TableHead,
   TableCell,
 } from "./Common/Table.jsx";
-import AddPatient from "./Form/addPatient.jsx"
+import AddPatient from "./Form/addPatient.jsx";
 import { TiDelete } from "react-icons/ti";
 
 //API
-import { getAllPatients } from "../service/patientAPI.js";
-import { updatePatient } from "../service/patientAPI";
+import { getAllPatients, deletePatient } from "../service/patientAPI.js";
 
 export default function Patient() {
   const [patients, setPatients] = useState([]);
+  const [paginationMeta, setPaginationMeta] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Get user role to determine permissions
+  const userRole = getUserRole();
 
   useEffect(() => {
-    fetchAllPatient();
-  }, []);
+    fetchAllPatient(currentPage);
+  }, [currentPage]);
 
-  const fetchAllPatient = async() => {
-    try{
-      const patients = await getAllPatients();
-      setPatients(patients);
-    } catch(err){
+  const fetchAllPatient = async (page = 1, limit = 10) => {
+    setIsLoading(true);
+    try {
+      const response = await getAllPatients(page, limit);
+      const patientsData = response.data.data || [];
+      const meta = response.data.meta || {
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      };
+
+      setPatients(patientsData);
+      setPaginationMeta(meta);
+    } catch (err) {
       console.error("Failed to fetch patients:", err.message);
+      setPatients([]);
+      setPaginationMeta({ total: 0, page: 1, limit: 10, totalPages: 1 });
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
-  const [filterStatus, setFilterStatus] = useState("All");
-
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const openModal = () => setIsModalOpen(true)
-  const closeModal = () => setIsModalOpen(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   const handleAddPatient = (newPatient) => {
     setPatients((prev) => [...prev, newPatient]);
+    // Refresh the current page to get updated data
+    fetchAllPatient(currentPage);
+    success("Patient added successfully!");
   };
 
-  const [searchTerm, setSearchTerm] = useState("")
-
-  const handleDeletePatient = (patientId) => {
-    setPatients((prev) => prev.filter((patient) => patient.patient_id !== patientId))
-  }
-
-  const filteredPatients = useMemo(() => {
-    return patients.filter((patient) => {
-      const fullName = `${patient.first_name} ${patient.last_name}`.toLowerCase();
-      const matchesSearch = fullName.includes(searchTerm.toLowerCase());
-      // If filterStatus is "All status", show all, else match status (case-insensitive)
-      const matchesStatus =
-        filterStatus === "All status" ||
-        filterStatus === "All" ||
-        filterStatus === "" ||
-        patient.status.toLowerCase() === filterStatus.toLowerCase();
-        return matchesSearch && matchesStatus;
-    });
-  }, [patients, searchTerm, filterStatus]);
-
-  // Change status handler
-  const handleStatusChange = async (id, newStatus) => {
+  const handleDeletePatient = async (patientId) => {
     try {
-      await updatePatient(id, { status: newStatus }); 
-      setPatients((prev) =>
-        prev.map((a) => (a.patient_id === id ? { ...a, status: newStatus } : a))
-      );
+      await deletePatient(patientId);
+      // Remove from local state and refresh data
+      fetchAllPatient(currentPage);
+      success("Patient deleted successfully!");
+      console.log("Patient deleted successfully");
     } catch (err) {
-      console.error("Failed to update patient status:", err.message);
+      console.error("Failed to delete patient:", err.message);
+
+      // Check if it's a constraint error
+      const errorMessage = err.response?.data?.message || err.message || "";
+
+      if (
+        errorMessage.includes("Cannot delete patient") ||
+        errorMessage.includes(
+          "existing appointments, medical records, or billings"
+        )
+      ) {
+        error(
+          "Cannot delete patient: This patient has existing appointments, medical records, or billing records."
+        );
+      } else if (
+        errorMessage.includes("constraint") ||
+        errorMessage.includes("foreign key")
+      ) {
+        error(
+          "Cannot delete patient: This patient has associated records in the system."
+        );
+      } else {
+        error("Failed to delete patient. Please try again.");
+      }
     }
   };
 
+  // Handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="h-screen bg-gray-50 flex flex-col">
       <PageBlurWrapper>
-        <div className="max-w-6xl mx-auto">
+        <div className="h-full flex flex-col max-w-6xl mx-auto p-4">
           {/*Header*/}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 flex-shrink-0">
             <h1 className="text-3xl font-bold">Patient</h1>
-            <Button content={"Add Patient"} onClick={openModal} />
+            {/* Only hide Add Patient button for doctors */}
+            {userRole && userRole !== "doctor" && (
+              <Button content={"Add Patient"} onClick={openModal} />
+            )}
           </div>
 
           {/*Search and Filter*/}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          {/* <div className="flex flex-col sm:flex-row gap-4 mb-6 flex-shrink-0">
             <div className="flex-1">
               <SearchBar
                 placeholder="Search patients..."
@@ -98,65 +135,143 @@ export default function Patient() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className='relative z-11'>
+            <div className="relative z-11">
               <Dropdown
                 options={["All status", "Active", "Inactive"]}
-                defaultLabel='Filter by Status'
+                defaultLabel="Filter by Status"
                 value={filterStatus}
                 onSelect={(option) => setFilterStatus(option)}
               />
             </div>
-          </div>
+          </div> */}
 
-          {/*Table*/}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="overflow-x-auto">
+          {/*Table Container with Fixed Height*/}
+          <div className="bg-white rounded-lg shadow flex-1 flex flex-col min-h-0">
+            {/* Single Scrollable Table - Fixed height for 5 rows */}
+            <div className="overflow-auto" style={{ height: "400px" }}>
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 z-10">
                   <TableRow>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Patient ID</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Last Name</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">First Name</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Height (m)</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Weight (kg)</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Date of Birth</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Address</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Contact</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Email</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Doctor</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Status</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Actions</TableHead>
+                    <TableHead className="bg-gray-50">Patient ID</TableHead>
+                    <TableHead className="bg-gray-50">Last Name</TableHead>
+                    <TableHead className="bg-gray-50">First Name</TableHead>
+                    <TableHead className="bg-gray-50">Height (m)</TableHead>
+                    <TableHead className="bg-gray-50">Weight (kg)</TableHead>
+                    <TableHead className="bg-gray-50">Date of Birth</TableHead>
+                    <TableHead className="bg-gray-50">Address</TableHead>
+                    <TableHead className="bg-gray-50">Contact</TableHead>
+                    <TableHead className="bg-gray-50">Email</TableHead>
+                    <TableHead className="bg-gray-50">Doctor</TableHead>
+                    <TableHead className="bg-gray-50">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredPatients.map((patient) => (
-                    <TableRow key={patient.patient_id}>
-                      <TableCell className="font-medium">{patient.patient_id}</TableCell>
-                      <TableCell className="font-medium">{patient.last_name}</TableCell>
-                      <TableCell className="font-medium">{patient.first_name}</TableCell>
-                      <TableCell className="font-medium">{patient.height}m</TableCell>
-                      <TableCell className="font-medium">{patient.weight}kg</TableCell>
-                      <TableCell className="font-medium">{patient.date_of_birth}</TableCell>
-                      <TableCell className="font-medium">{patient.address}</TableCell>        
-                      <TableCell className="font-medium">{patient.contact}</TableCell>
-                      <TableCell className="font-medium">{patient.email}</TableCell>
-                      <TableCell className="font-medium">{patient.doctor_id}</TableCell>
-                      <TableCell>
-                        <Dropdown
-                          options={["Active", "Inactive"]}
-                          value={patient.status}
-                          onSelect={(value) => handleStatusChange(patient.patient_id, value)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <button onClick={() => handleDeletePatient(patient.patient_id)} className='text-red-500 hover:text-red-700'>
-                          <TiDelete className='w-8 h-8' />
-                        </button>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan="11"
+                        className="text-center text-gray-500 py-8"
+                      >
+                        Loading patients...
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : patients.length > 0 ? (
+                    patients.map((patient) => {
+                      console.log("Patient data:", patient); // Debug log
+                      return (
+                        <TableRow
+                          key={
+                            patient.patientId ||
+                            patient.patient_id ||
+                            patient.id
+                          }
+                        >
+                          <TableCell className="font-medium">
+                            {patient.patientId ||
+                              patient.patient_id ||
+                              patient.id ||
+                              "N/A"}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {patient.last_name || patient.lastName || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {patient.first_name || patient.firstName || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {patient.height || "N/A"}m
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {patient.weight || "N/A"}kg
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {patient.date_of_birth ||
+                              patient.dateOfBirth ||
+                              "N/A"}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {patient.address || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {patient.contact || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {patient.email || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {patient.doctors && patient.doctors.length > 0
+                              ? patient.doctors
+                                  .map(
+                                    (doctor) =>
+                                      `Dr. ${doctor.firstName} ${doctor.lastName}`
+                                  )
+                                  .join(", ")
+                              : "No Doctor Assigned"}
+                          </TableCell>
+                          <TableCell>
+                            <button
+                              onClick={() =>
+                                handleDeletePatient(
+                                  patient.patientId ||
+                                    patient.patient_id ||
+                                    patient.id
+                                )
+                              }
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <TiDelete className="w-8 h-8" />
+                            </button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan="11"
+                        className="text-center text-gray-500 py-8"
+                      >
+                        No patients found
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
+            </div>
+
+            {/* Pagination */}
+            <div className="p-4 border-t bg-gray-50">
+              <Pagination
+                currentPage={paginationMeta.page}
+                totalPages={paginationMeta.totalPages}
+                totalItems={paginationMeta.total}
+                itemsPerPage={paginationMeta.limit}
+                onPageChange={handlePageChange}
+                showItemsInfo={true}
+                showPageNumbers={true}
+                maxVisiblePages={5}
+                className="justify-between"
+              />
             </div>
           </div>
         </div>
@@ -172,7 +287,6 @@ export default function Patient() {
       >
         <AddPatient onClose={closeModal} onAddPatient={handleAddPatient} />
       </ModalWrapper>
-
     </div>
   );
 }

@@ -71,6 +71,14 @@ export const deletePatient = async (req, res) => {
     }
     return success(res, { deleted: rows });
   } catch (err) {
-    return fail(res, err);
+    console.error("Delete patient error:", err);
+    // Handle custom error messages
+    if (err.message && err.message.includes("Cannot delete patient")) {
+      return res.status(400).json({
+        success: false,
+        message: err.message,
+      });
+    }
+    return fail(res, err.message || "Internal server error");
   }
 };

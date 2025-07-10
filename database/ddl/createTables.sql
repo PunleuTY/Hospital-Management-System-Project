@@ -108,3 +108,21 @@ CREATE TABLE billing (
 );
 
 ALTER TABLE billing ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+-- Role Table
+CREATE TABLE role (
+  role_id SERIAL PRIMARY KEY,
+  role_name VARCHAR(20) NOT NULL,
+  last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- User Table
+CREATE TABLE users (
+  user_id SERIAL PRIMARY KEY,
+  username VARCHAR(50) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role_id INT NOT NULL,
+  last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT user_role_id FOREIGN KEY (role_id)
+    REFERENCES role (role_id) ON DELETE CASCADE
+);

@@ -1,5 +1,5 @@
 import User from "../../db/models/user.js";
-import { findUser, createUserSv } from "../services/user_service.js";
+import { findUser, createUserSv, listUsers } from "../services/user_service.js";
 import bcrypt from "bcrypt";
 import { success, fail } from "../utils/response.js";
 
@@ -36,5 +36,16 @@ export const createUser = async (req, res) => {
   } catch (err) {
     console.error("Error creating user:", err);
     return fail(res, err);
+  }
+};
+
+// Get all users
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await listUsers();
+    return success(res, users, 200);
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    return fail(res, "Failed to fetch users");
   }
 };

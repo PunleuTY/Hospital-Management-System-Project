@@ -1,12 +1,12 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api/medical_records";
+const API_URL = "http://localhost:3000/api/medical_records";
 
 // get all medical records (MedicalRecords.jsx)
-export const getAllMedicalRecords = async () => {
-    const response = await axios.get(`${API_URL}/`)
-    return response.data;
-}
+export const getAllMedicalRecords = async (page = 1, limit = 10) => {
+  const response = await axios.get(`${API_URL}/?page=${page}&limit=${limit}`);
+  return response.data;
+};
 
 // create medical record
 export const createMedicalRecord = async (newData) => {

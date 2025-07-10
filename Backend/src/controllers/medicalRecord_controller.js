@@ -62,6 +62,7 @@ export const deleteMedicalRecord = async (req, res) => {
     }
     return success(res, { deleted: rows });
   } catch (err) {
+    console.error("deleteMedicalRecord error:", err);
     return fail(res, err);
   }
 };

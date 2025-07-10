@@ -55,6 +55,10 @@ Appointment.associate = (models) => {
     foreignKey: "doctor_id",
     as: "doctor",
   });
+  Appointment.hasMany(models.Medical_record, {
+    foreignKey: "appointment_id",
+    as: "medicalRecords",
+  });
 };
 
 export default Appointment;

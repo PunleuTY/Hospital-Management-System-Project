@@ -1,20 +1,29 @@
 import Input from "./Common/Input";
 import Button from "./Common/Button";
 import Dropdown from "./Common/Dropdown";
-import { use, useEffect, useState } from "react";
+import { useState } from "react";
+import { createUser } from "../service/userAPI.js";
+import { success, error } from "./utils/toast.js";
 
 export default function AddUser() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({
     userName: false,
     password: false,
     role: false,
   });
+  const [resetValue, setResetValue] = useState(0);
 
   // Role Option
-  const roleOptions = ["Nurse", "Receptionist", "Doctor"];
+  const roleMap = {
+    doctor: 2,
+    nurse: 3,
+    receptionist: 4,
+  };
+  const roleOptions = ["Doctor", "Nurse", "Receptionist"];
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
@@ -28,6 +37,7 @@ export default function AddUser() {
     setUserName("");
     setPassword("");
     setSelectedRole("");
+    setResetValue((prev) => prev + 1); // Increment instead of toggle
     setErrors({ userName: false, password: false, role: false });
   };
 
@@ -58,20 +68,30 @@ export default function AddUser() {
     return isValid;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const validateStatus = validate();
     if (validateStatus) {
-      const newUser = {
-        username: userName,
-        password: password,
-        role: selectedRole,
-      };
-      // Here you can add the logic to submit the form data
-      console.log("Form submitted successfully");
-      console.log(newUser);
-      reset();
+      setIsLoading(true);
+      try {
+        const newUser = {
+          username: userName,
+          password: password,
+          role: roleMap[selectedRole.toLowerCase()],
+        };
+
+        console.log("Submitting user:", newUser);
+        const response = await createUser(newUser);
+        console.log("User created successfully:", response);
+
+        reset();
+        success("User Created Successfully!");
+      } catch (error) {
+        console.error("Failed to create user:", error);
+        error("User Create Failed!");
+      } finally {
+        setIsLoading(false);
+      }
     }
-    //TODO: call api to add user
   };
 
   return (
@@ -104,7 +124,7 @@ export default function AddUser() {
             </div>
             <Input
               className="mb-3"
-              type="text"
+              type="password"
               placeholder="Enter Password"
               name="password"
               onChange={handlePasswordChange}
@@ -118,21 +138,24 @@ export default function AddUser() {
                 <p className="text-red-500">Please select a role</p>
               )}
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 ">
               <Dropdown
                 options={roleOptions}
                 defaultLabel="Choose a Role"
                 onSelect={setSelectedRole}
+                reset={resetValue}
               />
               <Button
-                content={"Add User"}
+                content={isLoading ? "Adding..." : "Add User"}
                 onClick={handleSubmit}
+                className={"w-full"}
                 isAddIcon={true}
+                disabled={isLoading}
               />
             </div>
           </div>
         </div>
-        <div className="flex-1 border border-(--color-gray) rounded-md p-3">
+        {/* <div className="flex-1 border border-(--color-gray) rounded-md p-3">
           <h2 className="font-bold text-2xl mb-2">User Summarization</h2>
           <div>
             <p>Total User: 13</p>
@@ -140,7 +163,7 @@ export default function AddUser() {
             <p className="mt-2">Total Nurse: 4</p>
             <p className="mt-2">Total Receptionist: 4</p>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
