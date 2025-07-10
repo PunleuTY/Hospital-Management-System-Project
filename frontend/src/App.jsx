@@ -12,7 +12,7 @@ import Dashboard from "./components/Dashboard.jsx";
 import Staff from "./components/Staff.jsx";
 import Patient from "./components/Patient.jsx";
 import MedicalRecord from "./components/Medicalrecord.jsx";
-import Billing from "./components/Billing.jsx";
+import { ToastContainer } from "react-toastify";
 
 // import Staff from "./components/Staff.jsx";
 import Login from "./components/Login.jsx";
@@ -22,6 +22,7 @@ import AddUser from "./components/addUser.jsx";
 export default function App() {
   return (
     <Router>
+      <ToastContainer />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard/*" element={<DashboardWithLayout />} />

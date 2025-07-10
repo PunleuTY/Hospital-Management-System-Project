@@ -1,12 +1,12 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api/patients";
+const API_URL = "http://localhost:3000/api/patients";
 
 // get all patients (Patient.jsx)
-export const getAllPatients = async () => {
-    const response = await axios.get(`${API_URL}/`)
-    return response.data;
-}
+export const getAllPatients = async (page = 1, limit = 10) => {
+  const response = await axios.get(`${API_URL}/?page=${page}&limit=${limit}`);
+  return response.data;
+};
 
 // get patient by id
 export const getPatientById = async (id) => {

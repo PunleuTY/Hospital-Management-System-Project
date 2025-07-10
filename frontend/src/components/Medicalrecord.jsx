@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import Button from "./Common/Button";
 import Input from "./Common/Input";
+import Pagination from "./Common/Pagination.jsx";
+import { success, error } from "../components/utils/toast.js";
 
 import PageBlurWrapper from "./Common/Blur-wrapper.jsx";
 import ModalWrapper from "./Common/Modal-wrapper.jsx";
@@ -19,28 +21,58 @@ import ModalColumn from "./Form/ModalColumn.jsx";
 import AddMedicalRecord from "./Form/addMedicalRecord.jsx";
 
 //API
-import { getAllMedicalRecords } from "../service/medicalrecordAPI.js";
+import {
+  getAllMedicalRecords,
+  deleteMedicalRecord,
+} from "../service/medicalrecordAPI.js";
 
 //Icons
 import { TiDelete } from "react-icons/ti";
 import { IoEyeSharp } from "react-icons/io5";
 
-
 export default function MedicalRecord() {
-  const [medicalrecords, setMedicalRecords] = useState([]);
+  const [medicalRecords, setMedicalRecords] = useState([]);
+  const [paginationMeta, setPaginationMeta] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    fetchAllMedicalRecord()
-  }, []);
+    fetchAllMedicalRecord(currentPage);
+  }, [currentPage]);
 
-  const fetchAllMedicalRecord = async () => {
-    try{
-      const medicalrecords = await getAllMedicalRecords();
-      setMedicalRecords(medicalrecords);
-    } catch(err){
+  const fetchAllMedicalRecord = async (page = 1, limit = 10) => {
+    setIsLoading(true);
+    try {
+      const response = await getAllMedicalRecords(page, limit);
+      console.log("Medical Record API response:", response); // Debug log
+      const medicalRecordsData = response.data?.data || response.data || [];
+      const meta = response.data?.meta || {
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      };
+
+      setMedicalRecords(medicalRecordsData);
+      setPaginationMeta(meta);
+    } catch (err) {
       console.error("Failed to fetch medical records:", err.message);
+      setMedicalRecords([]);
+      setPaginationMeta({ total: 0, page: 1, limit: 10, totalPages: 1 });
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(true);
@@ -48,6 +80,7 @@ export default function MedicalRecord() {
 
   const handleAddMedicalRecord = (newMedicalRecord) => {
     setMedicalRecords((prev) => [...prev, newMedicalRecord]);
+    success("Medical record added successfully!");
   };
 
   const [modalData, setModalData] = useState({
@@ -56,10 +89,31 @@ export default function MedicalRecord() {
     content: "",
   });
 
-  const handleDeleteRecord = (recordId) => {
-    setMedicalRecords((prev) =>
-      prev.filter((record) => record.record_id !== recordId)
-    );
+  const handleDeleteRecord = async (recordId) => {
+    try {
+      await deleteMedicalRecord(recordId);
+      setMedicalRecords((prev) =>
+        prev.filter((record) => record.record_id !== recordId)
+      );
+      success("Medical record deleted successfully!");
+    } catch (err) {
+      console.error("Failed to delete medical record:", err.message);
+
+      // Check if it's a constraint error
+      const errorMessage = err.response?.data?.message || err.message || "";
+
+      if (
+        errorMessage.includes("Cannot delete") ||
+        errorMessage.includes("constraint") ||
+        errorMessage.includes("foreign key")
+      ) {
+        error(
+          "Cannot delete medical record: This record has associated data in the system."
+        );
+      } else {
+        error("Failed to delete medical record. Please try again.");
+      }
+    }
   };
 
   const truncateText = (text, maxLength = 50) => {
@@ -84,160 +138,215 @@ export default function MedicalRecord() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-gray-50 p-6"
-      style={{ height: "calc(100% - 60px)" }}
-    >
+    <div className="h-screen bg-gray-50 flex flex-col">
       <PageBlurWrapper isBlurred={modalData.isOpen}>
-        <div className="max-w-7xl mx-auto">
+        <div className="h-full flex flex-col max-w-7xl mx-auto p-4">
           {/*Header*/}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6 flex-shrink-0">
             <h1 className="text-3xl font-bold">Medical Records</h1>
             <Button content={"Add Medical Record"} onClick={openModal} />
           </div>
 
-          {/* Medical Records Table */}
-          <div className="bg-white shadow-md rounded-lg overflow-hidden">
-            <div className="overflow-x-auto">
+          {/*Table Container with Fixed Height*/}
+          <div className="bg-white rounded-lg shadow flex-1 flex flex-col min-h-0">
+            {/* Single Scrollable Table - Fixed height */}
+            <div className="overflow-auto" style={{ height: "400px" }}>
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 z-10">
                   <TableRow>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Record ID</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Patient ID</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Appointment ID</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Diagnosis</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Prescription</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Lab Results</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Treatment</TableHead>
-                    <TableHead className="sticky top-0 bg-gray-200 z-10">Actions</TableHead>
+                    <TableHead className="bg-gray-50">Record ID</TableHead>
+                    <TableHead className="bg-gray-50">Patient ID</TableHead>
+                    <TableHead className="bg-gray-50">Appointment ID</TableHead>
+                    <TableHead className="bg-gray-50">Diagnosis</TableHead>
+                    <TableHead className="bg-gray-50">Prescription</TableHead>
+                    <TableHead className="bg-gray-50">Lab Results</TableHead>
+                    <TableHead className="bg-gray-50">Treatment</TableHead>
+                    <TableHead className="bg-gray-50">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {medicalrecords.map((record) => (
-                    <TableRow key={record.record_id}>
-                      <TableCell className="font-medium">
-                        {record.record_id}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {record.patient_id}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {record.appointment_id}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1">
-                            <div className="text-sm" title={record.diagnosis}>
-                              {truncateText(record.diagnosis, 40)}
-                            </div>
-                          </div>
-                          <button
-                            onClick={() =>
-                              openModalColumns(
-                                "Diagnosis Details",
-                                record.diagnosis
-                              )
-                            }
-                            className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                            title="View full diagnosis"
-                          >
-                            <IoEyeSharp className="w-6 h-6" />
-                          </button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1">
-                            <div
-                              className="text-sm"
-                              title={record.prescription}
-                            >
-                              {truncateText(record.prescription, 40)}
-                            </div>
-                          </div>
-                          <button
-                            onClick={() =>
-                              openModalColumns(
-                                "Prescription Details",
-                                record.prescription
-                              )
-                            }
-                            className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                            title="View full prescription"
-                          >
-                            <IoEyeSharp className="w-6 h-6" />
-                          </button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1">
-                            <div className="text-sm" title={record.lab_result}>
-                              {truncateText(record.lab_result, 40)}
-                            </div>
-                          </div>
-                          <button
-                            onClick={() =>
-                              openModalColumns("Lab Results", record.lab_result)
-                            }
-                            className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                            title="View full lab results"
-                          >
-                            <IoEyeSharp className="w-6 h-6" />
-                          </button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1">
-                            <div className="text-sm" title={record.treatment}>
-                              {truncateText(record.treatment, 40)}
-                            </div>
-                          </div>
-                          <button
-                            onClick={() =>
-                              openModalColumns(
-                                "Treatment Details",
-                                record.treatment
-                              )
-                            }
-                            className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                            title="View full treatment"
-                          >
-                            <IoEyeSharp className="w-6 h-6" />
-                          </button>
-                        </div>
-                      </TableCell>
-
-                      <TableCell>
-                        <button
-                          className="text-red-500 hover:text-red-700"
-                          onClick={() => handleDeleteRecord(record.record_id)}
+                  {medicalRecords.length > 0 ? (
+                    medicalRecords.map((record) => {
+                      console.log("Medical record data:", record); // Debug log
+                      return (
+                        <TableRow
+                          key={record.record_id || record.recordId || record.id}
                         >
-                          <TiDelete className="w-8 h-8" />
-                        </button>
+                          <TableCell className="font-medium">
+                            {record.record_id ||
+                              record.recordId ||
+                              record.id ||
+                              "N/A"}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {record.patient_id || record.patientId || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {record.appointment_id ||
+                              record.appointmentId ||
+                              "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1">
+                                <div
+                                  className="text-sm"
+                                  title={record.diagnosis || "N/A"}
+                                >
+                                  {truncateText(record.diagnosis || "N/A", 40)}
+                                </div>
+                              </div>
+                              <button
+                                onClick={() =>
+                                  openModalColumns(
+                                    "Diagnosis Details",
+                                    record.diagnosis || "No diagnosis available"
+                                  )
+                                }
+                                className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                                title="View full diagnosis"
+                              >
+                                <IoEyeSharp className="w-6 h-6" />
+                              </button>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1">
+                                <div
+                                  className="text-sm"
+                                  title={record.prescription || "N/A"}
+                                >
+                                  {truncateText(
+                                    record.prescription || "N/A",
+                                    40
+                                  )}
+                                </div>
+                              </div>
+                              <button
+                                onClick={() =>
+                                  openModalColumns(
+                                    "Prescription Details",
+                                    record.prescription ||
+                                      "No prescription available"
+                                  )
+                                }
+                                className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                                title="View full prescription"
+                              >
+                                <IoEyeSharp className="w-6 h-6" />
+                              </button>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1">
+                                <div
+                                  className="text-sm"
+                                  title={
+                                    record.lab_result ||
+                                    record.labResult ||
+                                    "N/A"
+                                  }
+                                >
+                                  {truncateText(
+                                    record.lab_result ||
+                                      record.labResult ||
+                                      "N/A",
+                                    40
+                                  )}
+                                </div>
+                              </div>
+                              <button
+                                onClick={() =>
+                                  openModalColumns(
+                                    "Lab Results",
+                                    record.lab_result ||
+                                      record.labResult ||
+                                      "No lab results available"
+                                  )
+                                }
+                                className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                                title="View full lab results"
+                              >
+                                <IoEyeSharp className="w-6 h-6" />
+                              </button>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1">
+                                <div
+                                  className="text-sm"
+                                  title={record.treatment || "N/A"}
+                                >
+                                  {truncateText(record.treatment || "N/A", 40)}
+                                </div>
+                              </div>
+                              <button
+                                onClick={() =>
+                                  openModalColumns(
+                                    "Treatment Details",
+                                    record.treatment || "No treatment available"
+                                  )
+                                }
+                                className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                                title="View full treatment"
+                              >
+                                <IoEyeSharp className="w-6 h-6" />
+                              </button>
+                            </div>
+                          </TableCell>
+
+                          <TableCell>
+                            <button
+                              className="text-red-500 hover:text-red-700"
+                              onClick={() =>
+                                handleDeleteRecord(
+                                  record.record_id ||
+                                    record.recordId ||
+                                    record.id
+                                )
+                              }
+                            >
+                              <TiDelete className="w-8 h-8" />
+                            </button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan="8"
+                        className="text-center text-gray-500 py-8"
+                      >
+                        No medical records found
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
+            </div>
+
+            {/* Pagination */}
+            <div className="p-4 border-t bg-gray-50">
+              <Pagination
+                currentPage={paginationMeta.page}
+                totalPages={paginationMeta.totalPages}
+                totalItems={paginationMeta.total}
+                itemsPerPage={paginationMeta.limit}
+                onPageChange={handlePageChange}
+                showItemsInfo={true}
+                showPageNumbers={true}
+                maxVisiblePages={5}
+                className="justify-between"
+              />
             </div>
           </div>
         </div>
       </PageBlurWrapper>
 
-<<<<<<< HEAD
-        <ModalWrapper
-              isOpen={isModalOpen}
-              onClose={closeModal}
-              size="md"
-              showCloseButton={true}
-              closeOnBackdropClick={true}
-              closeOnEscape={true}
-            >
-              <AddMedicalRecord onClose={closeModal} onAddMedicalRecord={handleAddMedicalRecord} />
-        </ModalWrapper>       
-=======
       <ModalWrapper
         isOpen={isModalOpen}
         onClose={closeModal}
@@ -248,10 +357,9 @@ export default function MedicalRecord() {
       >
         <AddMedicalRecord
           onClose={closeModal}
-          onAddAppointment={handleAddMedicalRecord}
+          onAddMedicalRecord={handleAddMedicalRecord}
         />
       </ModalWrapper>
->>>>>>> 8560a1e3ff6340d1cda686301acf372e0e6473bf
 
       {/* Modal for viewing full text */}
       <ModalWrapper

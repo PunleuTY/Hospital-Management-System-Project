@@ -60,6 +60,14 @@ export const deleteAppointment = async (req, res) => {
       return res.status(404).json({ status: "error", message: "Not Found" });
     return success(res, { deleted: rows });
   } catch (err) {
-    return fail(res, err);
+    console.error("deleteAppointment error:", err);
+    // Handle custom error messages
+    if (err.message && err.message.includes("Cannot delete appointment")) {
+      return res.status(400).json({
+        success: false,
+        message: err.message,
+      });
+    }
+    return fail(res, err.message || "Internal server error");
   }
 };
