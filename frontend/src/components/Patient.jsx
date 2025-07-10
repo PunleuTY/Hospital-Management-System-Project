@@ -17,6 +17,7 @@ import {
 } from "./Common/Table.jsx";
 import AddPatient from "./Form/addPatient.jsx";
 import { TiDelete } from "react-icons/ti";
+import SearchBar from "./Common/SearchBar.jsx";
 
 //API
 import { getAllPatients, deletePatient } from "../service/patientAPI.js";
@@ -65,6 +66,23 @@ export default function Patient() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredPatients = useMemo(() => {
+    return patients.filter((patient) => {
+      const fullName =
+        `${patient.first_name} ${patient.last_name}`.toLowerCase();
+      const matchesSearch = fullName.includes(searchTerm.toLowerCase());
+      // If filterStatus is "All status", show all, else match status (case-insensitive)
+      const matchesStatus =
+        filterStatus === "All status" ||
+        filterStatus === "All" ||
+        filterStatus === "" ||
+        patient.status.toLowerCase() === filterStatus.toLowerCase();
+      return matchesSearch && matchesStatus;
+    });
+  }, [patients, searchTerm, filterStatus]);
 
   const handleAddPatient = (newPatient) => {
     setPatients((prev) => [...prev, newPatient]);
@@ -127,7 +145,7 @@ export default function Patient() {
           </div>
 
           {/*Search and Filter*/}
-          {/* <div className="flex flex-col sm:flex-row gap-4 mb-6 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row gap-4 mb-6 flex-shrink-0">
             <div className="flex-1">
               <SearchBar
                 placeholder="Search patients..."
@@ -143,7 +161,7 @@ export default function Patient() {
                 onSelect={(option) => setFilterStatus(option)}
               />
             </div>
-          </div> */}
+          </div>
 
           {/*Table Container with Fixed Height*/}
           <div className="bg-white rounded-lg shadow flex-1 flex flex-col min-h-0">
