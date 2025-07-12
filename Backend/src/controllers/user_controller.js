@@ -38,14 +38,3 @@ export const createUser = async (req, res) => {
     return fail(res, err);
   }
 };
-
-// Get all users
-export const getAllUsers = async (req, res) => {
-  try {
-    const users = await listUsers();
-    return success(res, users, 200);
-  } catch (err) {
-    console.error("Error fetching users:", err);
-    return fail(res, "Failed to fetch users");
-  }
-};

@@ -1,14 +1,17 @@
--- 🧩 Joins
-
 -- 1. List all appointments along with the full name of the doctor and the patient, including department name
-SELECT a.*, s.FIRST_NAME || ' ' || s.LAST_NAME AS doctor_name, p.FIRST_NAME || ' ' || p.LAST_NAME AS patient_name, d.DEPARTMENT_NAME FROM APPOINTMENT a
-JOIN STAFF s ON a.DOCTOR_ID = s.STAFF_ID
-JOIN PATIENT p USING (PATIENT_ID)
-JOIN DEPARTMENT d ON d.DEPARTMENT_ID = s.DEPARTMENT_ID;
+SELECT 
+  a.*,
+  s.first_name || ' ' || s.last_name AS doctor_name,
+  p.first_name || ' ' || p.last_name AS patient_name,
+  d.department_name
+FROM appointment a
+JOIN staff s ON a.doctor_id = s.staff_id
+JOIN patient p ON a.patient_id = p.patient_id
+JOIN department d ON s.department_id = d.department_id;
 
 -- 2. Get all patients along with their latest appointment date and the doctor they saw, including doctor's specialization
 -- Involves JOINs and filtering using MAX(date_time) per patient
-SELECT 
+SELECT DISTINCT ON (p.patient_id)
     p.*,
     a.date_time AS latest_appointment,
     s.first_name || ' ' || s.last_name AS doctor_name,
@@ -16,11 +19,7 @@ SELECT
 FROM patient p
 JOIN appointment a ON p.patient_id = a.patient_id
 JOIN staff s ON a.doctor_id = s.staff_id
-WHERE a.date_time = (
-    SELECT MAX(date_time)
-    FROM appointment
-    WHERE patient_id = p.patient_id
-);
+ORDER BY p.patient_id, a.date_time DESC;
 
 -- 3. List all nurses along with the doctor they report to (use doctor_id in staff)
 SELECT
@@ -54,11 +53,11 @@ WHERE NOT EXISTS (
 SELECT
     s.staff_id,
     s.first_name || ' ' || s.last_name AS doctor_name,
-    COUNT(p.patient_id) AS patient_count
+    COUNT(DISTINCT pd.patient_id) AS patient_count
 FROM staff s
-JOIN patient p ON s.staff_id = p.doctor_id
+JOIN patient_doctor pd ON s.staff_id = pd.doctor_id
 GROUP BY s.staff_id
-HAVING COUNT(p.patient_id) > 5;
+HAVING COUNT(DISTINCT pd.patient_id) > 5;
 
 -- 7. List all staff members who work in the department with the highest number of appointments
 WITH dept_appointment_counts AS (
@@ -149,45 +148,69 @@ RETURNS INT AS $$
 DECLARE
     count_patients INT;
 BEGIN
-    SELECT COUNT(*)
+    SELECT COUNT(DISTINCT patient_id)
     INTO count_patients
-    FROM patient
+    FROM patient_doctor
     WHERE doctor_id = doctor;
     
     RETURN COALESCE(count_patients, 0);
 END;
 $$ LANGUAGE plpgsql;
 
--- 14. Create a trigger that updates the last_modified column in the staff table whenever a row is updated
-CREATE OR REPLACE FUNCTION update_last_modified()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.last_modified = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- 14. Retrieves each doctor's average consultation fee and number of unique patients they’ve seenWITH doctor_patients AS (
+    SELECT
+        s.staff_id AS doctor_id,
+        COUNT(DISTINCT a.patient_id) AS unique_patients
+    FROM staff s
+    JOIN appointment a ON s.staff_id = a.doctor_id
+    WHERE s.role = 'Doctor'
+    GROUP BY s.staff_id
+),
+doctor_billing AS (
+    SELECT
+        s.staff_id AS doctor_id,
+        AVG(b.consultation_fee) AS avg_consultation_fee
+    FROM staff s
+    JOIN appointment a ON s.staff_id = a.doctor_id
+    JOIN billing b ON a.patient_id = b.patient_id
+    WHERE s.role = 'Doctor'
+    GROUP BY s.staff_id
+)
+SELECT 
+    s.staff_id,
+    s.first_name || ' ' || s.last_name AS doctor_name,
+    dp.unique_patients,
+    db.avg_consultation_fee
+FROM staff s
+JOIN doctor_patients dp ON s.staff_id = dp.doctor_id
+JOIN doctor_billing db ON s.staff_id = db.doctor_id
+WHERE s.role = 'Doctor'
+ORDER BY dp.unique_patients DESC;
 
-CREATE TRIGGER trg_update_last_modified
-BEFORE UPDATE ON staff
-FOR EACH ROW
-EXECUTE FUNCTION update_last_modified();
-
--- 15. Write a stored procedure that accepts a patient’s ID and returns their full billing summary along with appointment count and doctor’s name
-CREATE OR REPLACE PROCEDURE get_patient_billing_summary(IN p_patient_id INT)
-LANGUAGE plpgsql
-AS $$
-BEGIN
+-- 15. Returns each department's average patient weight and total medical records based on linked appointments.
+WITH dept_patient_weights AS (
     SELECT 
-        p.patient_id,
-        p.first_name || ' ' || p.last_name AS patient_name,
-        s.first_name || ' ' || s.last_name AS doctor_name,
-        COUNT(DISTINCT a.appointment_id) AS appointment_count,
-        SUM(b.treatment_fee + b.medication_fee + b.lab_test_fee + b.consultation_fee) AS total_billed
-    FROM patient p
-    LEFT JOIN appointment a ON p.patient_id = a.patient_id
-    LEFT JOIN staff s ON a.doctor_id = s.staff_id
-    LEFT JOIN billing b ON p.patient_id = b.patient_id
-    WHERE p.patient_id = p_patient_id
-    GROUP BY p.patient_id, p.first_name, p.last_name, s.first_name, s.last_name;
-END;
-$$;
+        s.department_id,
+        AVG(p.weight) AS avg_weight
+    FROM appointment a
+    JOIN patient p ON a.patient_id = p.patient_id
+    JOIN staff s ON a.doctor_id = s.staff_id
+    GROUP BY s.department_id
+),
+dept_medical_records AS (
+    SELECT 
+        s.department_id,
+        COUNT(mr.record_id) AS total_medical_records
+    FROM medical_record mr
+    JOIN appointment a ON mr.appointment_id = a.appointment_id
+    JOIN staff s ON a.doctor_id = s.staff_id
+    GROUP BY s.department_id
+)
+SELECT 
+    d.department_name,
+    dpw.avg_weight,
+    dmr.total_medical_records
+FROM department d
+LEFT JOIN dept_patient_weights dpw ON d.department_id = dpw.department_id
+LEFT JOIN dept_medical_records dmr ON d.department_id = dmr.department_id
+ORDER BY dpw.avg_weight DESC NULLS LAST;
