@@ -46,8 +46,9 @@ export const createAppointment = async (req, res) => {
 export const updateAppointment = async (req, res) => {
   try {
     const [rows] = await updateAppointmentSv(req.params.id, req.body);
-    if (rows === 0)
+    if (rows === 0) {
       return res.status(404).json({ status: "error", message: "Not Found" });
+    }
     return success(res, { updated: rows });
   } catch (err) {
     return fail(res, err);
@@ -56,8 +57,9 @@ export const updateAppointment = async (req, res) => {
 export const deleteAppointment = async (req, res) => {
   try {
     const rows = await deleteAppointmentSv(req.params.id);
-    if (rows === 0)
+    if (rows === 0) {
       return res.status(404).json({ status: "error", message: "Not Found" });
+    }
     return success(res, { deleted: rows });
   } catch (err) {
     console.error("deleteAppointment error:", err);

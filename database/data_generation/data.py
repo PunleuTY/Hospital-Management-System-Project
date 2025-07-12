@@ -5,6 +5,18 @@ from faker import Faker
 from faker.providers import BaseProvider
 from zipfile import ZipFile
 
+# ==== Total Records Summarization ====
+"""
+7 Tables:
+- Department: 5
+- Staff: 200 (80 doctors, 90 nurses, 30 receptionists)
+- Patients: 1,000,000
+- Patient-Doctor: 1,000,000 (each patient has a doctor)
+- Appointments: 1,000,000 (each appointment has a doctor and a patient
+- Medical Records: 1,000,000 (each record has a patient and an appointment)
+- Billing: 1,000,000 (each billing has a patient and a receptionist)
+"""
+
 # ==== 1) Tiny PhysicalProvider for height & weight ====
 class PhysicalProvider(BaseProvider):
     def height(self):
