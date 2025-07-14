@@ -1,17 +1,42 @@
 import models from "../../db/models/index.js";
 
-const { Billing } = models;
+const { Billing, Patient, Staff } = models;
 
 export const listBills = async ({ limit, offset }) => {
   return Billing.findAndCountAll({
     limit,
     offset,
     order: [["billing_id", "ASC"]],
+    include: [
+      {
+        model: Patient,
+        as: "patient",
+        attributes: ["patientId", "firstName", "lastName"],
+      },
+      {
+        model: Staff,
+        as: "receptionist",
+        attributes: ["staffId", "firstName", "lastName"],
+      },
+    ],
   });
 };
 
 export const findBillById = async (id) => {
-  return Billing.findByPk(id);
+  return Billing.findByPk(id, {
+    include: [
+      {
+        model: Patient,
+        as: "patient",
+        attributes: ["patientId", "firstName", "lastName"],
+      },
+      {
+        model: Staff,
+        as: "receptionist",
+        attributes: ["staffId", "firstName", "lastName"],
+      },
+    ],
+  });
 };
 
 export const createBillSv = async (billData) => {

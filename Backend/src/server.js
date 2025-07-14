@@ -3,7 +3,7 @@ import cors from "cors";
 import { notFound, catchErrors } from "./middlewares/error_middlewares.js";
 import sequelize from "../db/config/db_config.js";
 import "../config.js";
-``;
+
 import logger from "./middlewares/logger_middleware.js";
 
 import "../db/models/department.js";
@@ -22,18 +22,31 @@ import medicalRecordRoutes from "./routes/medicalRecord_routes.js";
 import staffRoutes from "./routes/staff_routes.js";
 import appointmentRoutes from "./routes/appointment_routes.js";
 import departmentRoutes from "./routes/department_routes.js";
+import userRoutes from "./routes/user_routes.js";
+import authRoutes from "./routes/auth_routes.js";
 
 const app = express();
 app.use(cors(), express.json());
 app.use(logger);
 
+// Mount routes BEFORE starting the server
+app.use(patientRoutes);
+app.use(billRoutes);
+app.use(medicalRecordRoutes);
+app.use(staffRoutes);
+app.use(appointmentRoutes);
+app.use(departmentRoutes);
+app.use(userRoutes);
+app.use(authRoutes);
+
+app.use(notFound);
+app.use(catchErrors);
+
 const connectDB = async () => {
   try {
     await sequelize.authenticate();
     console.log("Database connection has been established successfully.");
-
-    await sequelize.sync({ alter: true });
-    console.log("All models were synchronized successfully.");
+    console.log("Skipping database sync - using existing schema.");
   } catch (error) {
     console.error("Unable to connect to the database:", error);
     process.exit(1);
@@ -54,13 +67,3 @@ startServer().catch((error) => {
   console.error("Failed to start server:", error);
   process.exit(1);
 });
-
-app.use(patientRoutes);
-app.use(billRoutes);
-app.use(medicalRecordRoutes);
-app.use(staffRoutes);
-app.use(appointmentRoutes);
-app.use(departmentRoutes);
-
-app.use(notFound);
-app.use(catchErrors);

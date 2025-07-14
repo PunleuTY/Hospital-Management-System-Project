@@ -1,6 +1,6 @@
-import e from "express";
+import express from "express";
 
-const router = e.Router();
+const router = express.Router();
 import {
   getAllStaff,
   getStaffById,
@@ -10,18 +10,18 @@ import {
 } from "../controllers/staff_controller.js";
 
 // Router for get all staff members
-router.get("/api/staff", getAllStaff);
+router.get("/api/staffs", getAllStaff);
 
 // Router for get staff member by id
-router.get("/api/staff/:id", getStaffById);
+router.get("/api/staffs/:id", getStaffById);
 
 // Router for create staff member
-router.post("/api/staff", createStaff);
+router.post("/api/staffs", createStaff);
 
 // Router for update staff member
-router.put("/api/staff/:id", updateStaff);
+router.put("/api/staffs/:id", updateStaff);
 
 // Router for delete staff member
-router.delete("/api/staff/:id", deleteStaff);
+router.delete("/api/staffs/:id", deleteStaff);
 
 export default router;
