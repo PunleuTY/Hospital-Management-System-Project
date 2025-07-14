@@ -64,13 +64,11 @@ export default function Appointment() {
     try {
       const response = await getAllAppointments();
       console.log("Appointment API response:", response); // Debug log
-      // Access the correct data structure based on backend response
       const appointmentsData = response.data?.data || response.data || [];
       console.log("Appointments data:", appointmentsData); // Debug log
       setAppointments(appointmentsData);
     } catch (err) {
       console.error("Failed to fetch appointments:", err.message);
-      setAppointments([]);
     }
   };
 
@@ -104,12 +102,12 @@ export default function Appointment() {
   // Filter logic
   const filteredAppointments = (appointments || []).filter((appointment) => {
     const appointmentDate =
-      appointment.dateTime || appointment.date_time || appointment.date;
+      appointment?.dateTime || appointment?.date_time || appointment?.date;
     const matchesDate = !filterDate || appointmentDate?.includes(filterDate);
     const matchesStatus =
       !filterStatus ||
       filterStatus === "All" ||
-      appointment.status?.toLowerCase() === filterStatus.toLowerCase();
+      appointment?.status?.toLowerCase() === filterStatus.toLowerCase();
     return matchesDate && matchesStatus;
   });
 

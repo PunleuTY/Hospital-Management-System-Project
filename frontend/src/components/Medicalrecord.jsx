@@ -49,13 +49,12 @@ export default function MedicalRecord() {
     setIsLoading(true);
     try {
       const response = await getAllMedicalRecords(page, limit);
-      console.log("Medical Record API response:", response); // Debug log
       const medicalRecordsData = response.data?.data || response.data || [];
       const meta = response.data?.meta || {
-        total: 0,
+        total: medicalRecordsData.length,
         page: 1,
         limit: 10,
-        totalPages: 1,
+        totalPages: Math.ceil(medicalRecordsData.length / 10),
       };
 
       setMedicalRecords(medicalRecordsData);
@@ -98,18 +97,10 @@ export default function MedicalRecord() {
       success("Medical record deleted successfully!");
     } catch (err) {
       console.error("Failed to delete medical record:", err.message);
-
-      // Check if it's a constraint error
       const errorMessage = err.response?.data?.message || err.message || "";
 
-      if (
-        errorMessage.includes("Cannot delete") ||
-        errorMessage.includes("constraint") ||
-        errorMessage.includes("foreign key")
-      ) {
-        error(
-          "Cannot delete medical record: This record has associated data in the system."
-        );
+      if (errorMessage.includes("constraint") || errorMessage.includes("foreign key")) {
+        error("Cannot delete medical record: This record has associated data.");
       } else {
         error("Failed to delete medical record. Please try again.");
       }
@@ -117,6 +108,7 @@ export default function MedicalRecord() {
   };
 
   const truncateText = (text, maxLength = 50) => {
+    if (!text) return "N/A";
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
   };
@@ -345,7 +337,7 @@ export default function MedicalRecord() {
             </div>
           </div>
         </div>
-      </PageBlurWrapper>
+      </PageBlurWrapper>       
 
       <ModalWrapper
         isOpen={isModalOpen}

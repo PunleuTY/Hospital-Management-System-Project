@@ -12,7 +12,10 @@ import Dashboard from "./components/Dashboard.jsx";
 import Staff from "./components/Staff.jsx";
 import Patient from "./components/Patient.jsx";
 import MedicalRecord from "./components/Medicalrecord.jsx";
+
+
 import { ToastContainer } from "react-toastify";
+
 
 // import Staff from "./components/Staff.jsx";
 import Login from "./components/Login.jsx";
